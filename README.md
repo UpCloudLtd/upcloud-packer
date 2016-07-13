@@ -15,22 +15,30 @@ cp $GOPATH/bin/packer-builder-upcloud ~/.packer.d/plugins
 
 ## Usage
 
-Here is a sample template:
+Here is a sample template (you can find this one and a few others in the `examples/` directory). It reads your UpCloud 
+API credentials from the environment and creates an Ubuntu 14.04 server using the smallest plan possible in the 
+`fi-hel1` region.
 
 ```json
 {
   "variables": {
-    "UPCLOUD_API_USERNAME": "your username",
-    "UPCLOUD_API_PASSWORD": "your password"
+    "UPCLOUD_USERNAME": "{{ env `UPCLOUD_GO_SDK_TEST_USER` }}",
+    "UPCLOUD_PASSWORD": "{{ env `UPCLOUD_GO_SDK_TEST_PASSWORD` }}"
   },
   "builders": [
     {
       "type": "upcloud",
-      "username": "{{ user `UPCLOUD_API_USERNAME` }}",
-      "password": "{{ user `UPCLOUD_API_PASSWORD` }}",
+      "username": "{{ user `UPCLOUD_USERNAME` }}",
+      "password": "{{ user `UPCLOUD_PASSWORD` }}",
       "plan": "1xCPU-1GB",
       "zone": "fi-hel1",
       "storage_uuid": "01000000-0000-4000-8000-000030040200"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": ["apt-get update"]
     }
   ]
 }
@@ -39,7 +47,7 @@ Here is a sample template:
 If everything goes according to plan, you should see something like this:
 
 ```
-packer build packer.json 
+$ packer build examples/basic_plan.json 
 upcloud output will be in this color.
 
 ==> upcloud: Creating temporary SSH key ...
