@@ -15,6 +15,9 @@ cp $GOPATH/bin/packer-builder-upcloud ~/.packer.d/plugins
 
 ## Usage
 
+The builder will automatically generate a temporary SSH key pair for the `root` user which is used for provisioning. 
+This means that if you don't provision a user during the process you will not be able to gain access to your server.
+
 Here is a sample template (you can find this one and a few others in the `examples/` directory). It reads your UpCloud 
 API credentials from the environment and creates an Ubuntu 14.04 server in the `fi-hel1` region.
 
