@@ -8,7 +8,6 @@
       "type": "upcloud",
       "username": "{{ user `UPCLOUD_USERNAME` }}",
       "password": "{{ user `UPCLOUD_PASSWORD` }}",
-      "plan": "1xCPU-1GB",
       "zone": "fi-hel1",
       "storage_uuid": "01000000-0000-4000-8000-000030040200"
     }

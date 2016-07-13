@@ -3,7 +3,6 @@ package upcloud
 import (
 	"errors"
 	"fmt"
-	"github.com/jalle19/upcloud-go-sdk/upcloud"
 	"github.com/mitchellh/packer/common"
 	"github.com/mitchellh/packer/helper/communicator"
 	"github.com/mitchellh/packer/helper/config"
@@ -17,24 +16,18 @@ type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
 	Comm                communicator.Config `mapstructure:",squash"`
 
-	Username string `mapstructure:"username"`
-	Password string `mapstructure:"password"`
+	// Required configuration values
+	Username    string `mapstructure:"username"`
+	Password    string `mapstructure:"password"`
+	Zone        string `mapstructure:"zone"`
+	StorageUUID string `mapstructure:"storage_uuid"`
 
-	Plan         string `mapstructure:"plan"`
-	CoreNumber   int    `mapstructure:"core_number"`
-	MemoryAmount int    `mapstructure:"memory_amount"`
-	Title        string `mapstructure:"title"`
-	Hostname     string `mapstructure:"hostname"`
-	Zone         string `mapstructure:"zone"`
-	StorageUUID  string `mapstructure:"storage_uuid"`
-	StorageTitle string `mapstructure:"storage_title"`
-	StorageSize  int    `mapstructure:"storage_size"`
-	StorageTier  string `mapstructure:"storage_tier"`
-
+	// Optional configuration values
+	StorageSize             int    `mapstructure:"storage_size"`
 	RawStateTimeoutDuration string `mapstructure:"state_timeout_duration"`
-	StateTimeoutDuration    time.Duration
 
-	ctx interpolate.Context
+	StateTimeoutDuration time.Duration
+	ctx                  interpolate.Context
 }
 
 // NewConfig creates a new configuration, setting default values and validating it along the way
@@ -51,28 +44,10 @@ func NewConfig(raws ...interface{}) (*Config, error) {
 	}
 
 	// Assign default values if possible
-	if c.Title == "" {
-		c.Title = fmt.Sprintf("packer-builder-upcloud-%d", time.Now().Unix())
-	}
-
-	if c.Hostname == "" {
-		c.Hostname = fmt.Sprintf("%s.example.com", c.Title)
-	}
+	c.Comm.SSHUsername = "root"
 
 	if c.StorageSize == 0 {
 		c.StorageSize = 30
-	}
-
-	if c.StorageTitle == "" {
-		c.StorageTitle = fmt.Sprintf("%s-disk1", c.Title)
-	}
-
-	if c.StorageTier == "" {
-		c.StorageTier = upcloud.StorageTierMaxIOPS
-	}
-
-	if c.Comm.SSHUsername == "" {
-		c.Comm.SSHUsername = "root"
 	}
 
 	if c.RawStateTimeoutDuration == "" {
@@ -92,16 +67,6 @@ func NewConfig(raws ...interface{}) (*Config, error) {
 	if c.Password == "" {
 		errs = packer.MultiErrorAppend(
 			errs, errors.New("\"password\" must be specified"))
-	}
-
-	if c.Plan == "" && (c.CoreNumber == 0 || c.MemoryAmount == 0) {
-		errs = packer.MultiErrorAppend(
-			errs, errors.New("\"core_number\" and \"memory_amount\" must be specified if \"plan\" is not specified"))
-	}
-
-	if c.Plan != "" && (c.CoreNumber > 0 || c.MemoryAmount > 0) {
-		errs = packer.MultiErrorAppend(
-			errs, errors.New("\"core_number\" and \"memory_amount\" must not be specified when \"plan\" is specified"))
 	}
 
 	if c.Zone == "" {

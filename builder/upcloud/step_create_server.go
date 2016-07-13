@@ -7,6 +7,7 @@ import (
 	"github.com/jalle19/upcloud-go-sdk/upcloud/service"
 	"github.com/mitchellh/multistep"
 	"github.com/mitchellh/packer/packer"
+	"time"
 )
 
 // StepCreateServer represents the Packer step that creates a new server instance
@@ -21,18 +22,23 @@ func (s *StepCreateServer) Run(state multistep.StateBag) multistep.StepAction {
 	config := state.Get("config").(Config)
 
 	// Create the request
+	title := fmt.Sprintf("packer-builder-upcloud-%d", time.Now().Unix())
+	hostname := fmt.Sprintf("%s.example.com", title)
+
 	createServerRequest := request.CreateServerRequest{
-		Title:            config.Title,
-		Hostname:         config.Hostname,
+		Title:            title,
+		Hostname:         hostname,
 		Zone:             config.Zone,
 		PasswordDelivery: request.PasswordDeliveryNone,
+		CoreNumber:       2,
+		MemoryAmount:     2048,
 		StorageDevices: []upcloud.CreateServerStorageDevice{
 			{
 				Action:  upcloud.CreateServerStorageDeviceActionClone,
 				Storage: config.StorageUUID,
-				Title:   config.StorageTitle,
+				Title:   fmt.Sprintf("%s-disk1", title),
 				Size:    config.StorageSize,
-				Tier:    config.StorageTier,
+				Tier:    upcloud.StorageTierMaxIOPS,
 			},
 		},
 		IPAddresses: []request.CreateServerIPAddress{
@@ -51,18 +57,11 @@ func (s *StepCreateServer) Run(state multistep.StateBag) multistep.StepAction {
 		},
 		LoginUser: &request.LoginUser{
 			CreatePassword: "no",
+			Username:       config.Comm.SSHUsername,
 			SSHKeys: []string{
 				state.Get("ssh_public_key").(string),
 			},
 		},
-	}
-
-	// Use either a plan or a custom core/memory configuration
-	if config.Plan != "" {
-		createServerRequest.Plan = config.Plan
-	} else {
-		createServerRequest.CoreNumber = config.CoreNumber
-		createServerRequest.MemoryAmount = config.MemoryAmount
 	}
 
 	// Create the server

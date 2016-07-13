@@ -52,7 +52,7 @@ func (s *StepTemplatizeStorage) Run(state multistep.StateBag) multistep.StepActi
 
 			storageDetails, err := service.TemplatizeStorage(&request.TemplatizeStorageRequest{
 				UUID:  storage.UUID,
-				Title: fmt.Sprintf("%s-template-%d", config.StorageTitle, time.Now().Unix()),
+				Title: fmt.Sprintf("%s-template-%d", storage.Title, time.Now().Unix()),
 			})
 
 			if err != nil {
