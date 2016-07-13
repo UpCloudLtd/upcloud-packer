@@ -1,6 +1,7 @@
 # packer-builder-upcloud
 
-This is a Packer builder which can be used to generate storage templates on UpCloud.
+This is a Packer builder which can be used to generate storage templates on UpCloud. It uses the 
+[UpCloud Go SDK](https://github.com/Jalle19/upcloud-go-sdk) to interface with UpCloud's API.
 
 ## Installation
 
@@ -26,8 +27,8 @@ usually solve these by removing the vendored packages Go complains about from `$
 The builder will automatically generate a temporary SSH key pair for the `root` user which is used for provisioning. 
 This means that if you don't provision a user during the process you will not be able to gain access to your server.
 
-Here is a sample template (you can find this one and a few others in the `examples/` directory). It reads your UpCloud 
-API credentials from the environment and creates an Ubuntu 14.04 server in the `fi-hel1` region.
+Here is a sample template (you can find this in the `examples/` directory). It reads your UpCloud API credentials from 
+the environment and creates an Ubuntu 14.04 server in the `fi-hel1` region.
 
 ```json
 {
@@ -65,8 +66,13 @@ upcloud output will be in this color.
 ==> upcloud: Server "packer-builder-upcloud-1468327456" is now in "started" state
 ==> upcloud: Waiting for SSH to become available...
 ==> upcloud: Connected to SSH!
-==> upcloud: Provisioning with shell script: scripts/update.sh
+==> upcloud: Provisioning with shell script: /tmp/packer-shell667235875
+    upcloud: Ign http://fi.archive.ubuntu.com trusty InRelease
+    upcloud: Get:1 http://fi.archive.ubuntu.com trusty-updates InRelease [65.9 kB]
+    upcloud: Get:2 http://fi.archive.ubuntu.com trusty-backports InRelease [65.9 kB]
 ...
+    upcloud: Fetched 33.0 MB in 9s (3,622 kB/s)
+    upcloud: Reading package lists...
 ==> upcloud: Stopping server "packer-builder-upcloud-1468327456" ...
 ==> upcloud: Waiting for server "packer-builder-upcloud-1468327456" to enter the "stopped" state ...
 ==> upcloud: Server "packer-builder-upcloud-1468327456" is now in "stopped" state
@@ -80,23 +86,23 @@ Build 'upcloud' finished.
 --> upcloud: Private template (UUID: 01875f67-4eb5-4d90-982c-d7a164646fcb, Title: packer-builder-upcloud-1468327456-disk1-template-1468327515, Zone: fi-hel1)
 ```
 
-### Configuration reference
+## Configuration reference
 
-This section describes the available configuration options for the builder. Please not that since the purpose of the 
+This section describes the available configuration options for the builder. Please note that since the purpose of the 
 builder is to build a storage template that can be used as a source when cloning new servers, the server used when 
-building the template is irrelevant and thus not configurable. 
+building the template is fairly irrelevant and thus not configurable. 
 
-#### Required values
+### Required values
 
 * `username` (string) The username to use when interfacing with the API
 * `password` (string) The password to use when interfacing with the API
 * `zone` (string) The zone in which the server and template should be created (e.g. `fi-hel1`)
 * `storage_uuid` (string) The UUID of the storage you want to use as a template when creating the server
 
-#### Optional values
+### Optional values
 
 * `storage_size` (int) The storage size in gigabytes. Defaults to `30`. Changing this value is useful if you aim to build 
-a template for larger server configurations where the disk size is larger than 30 GB.
+a template for larger server configurations where the server plan's disk size is larger than 30 GB.
 * `state_timeout_duration` (string) The amount of time to wait for resource state changes. Defaults to `5m`.
 
 ## License
