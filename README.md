@@ -69,6 +69,25 @@ Build 'upcloud' finished.
 --> upcloud: Private template (UUID: 01875f67-4eb5-4d90-982c-d7a164646fcb, Title: packer-builder-upcloud-1468327456-disk1-template-1468327515, Zone: fi-hel1)
 ```
 
+### Configuration reference
+
+This section describes the available configuration options for the builder. Please not that since the purpose of the 
+builder is to build a storage template that can be used as a source when cloning new servers, the server used when 
+building the template is irrelevant and thus not configurable. 
+
+#### Required values
+
+* `username` (string) The username to use when interfacing with the API
+* `password` (string) The password to use when interfacing with the API
+* `zone` (string) The zone in which the server and template should be created (e.g. `fi-hel1`)
+* `storage_uuid` (string) The UUID of the storage you want to use as a template when creating the server
+
+#### Optional values
+
+* `storage_size` (int) The storage size in gigabytes. Defaults to `30`. Changing this value is useful if you aim to build 
+a template for larger server configurations where the disk size is larger than 30 GB.
+* `state_timeout_duration` (string) The amount of time to wait for resource state changes. Defaults to `5m`.
+
 ## License
 
 This project is distributed under the [MIT License](https://opensource.org/licenses/MIT), see LICENSE.txt for more 
