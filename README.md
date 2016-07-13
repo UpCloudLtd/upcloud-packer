@@ -4,7 +4,12 @@ This is a Packer builder which can be used to generate storage templates on UpCl
 
 ## Installation
 
-To install the builder you'll need to download it, install it, then copy the binary to Packer's plugin directory.
+You can download pre-built binaries of the plugin from 
+https://packer-builder-upcloud-builds.s3.eu-central-1.amazonaws.com/index.html. Once you've downloaded the binary for 
+your operating system and architecture, rename the file to `packer-builder-upcloud`, move it to `~/.packer.d/plugins` 
+and make it executable.
+
+To install from source, use something like this:
 
 ```
 go get github.com/jalle19/packer-builder-upcloud
@@ -12,6 +17,9 @@ cd $GOPATH/src/github.com/jalle19/packer-builder-upcloud
 go install
 cp $GOPATH/bin/packer-builder-upcloud ~/.packer.d/plugins
 ```
+
+If you attempt to build it from source you'll most likely bump into some vendored dependency versioning issues. You can 
+usually solve these by removing the vendored packages Go complains about from `$GOPATH/src/github.com/packer`.
 
 ## Usage
 
