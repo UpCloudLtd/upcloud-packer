@@ -156,6 +156,18 @@ func (s *StepCreateServer) Cleanup(state multistep.StateBag) {
 		}
 	}
 
+	// Store the disk UUID so we can delete it once the server is deleted
+	storageUUID := ""
+	storageTitle := ""
+
+	for _, storage := range newServerDetails.StorageDevices {
+		if storage.Type == upcloud.StorageTypeDisk {
+			storageUUID = storage.UUID
+			storageTitle = storage.Title
+			break
+		}
+	}
+
 	// Delete the server
 	ui.Say(fmt.Sprintf("Deleting server \"%s\" ...", serverDetails.Title))
 	err = service.DeleteServer(&request.DeleteServerRequest{
@@ -164,5 +176,17 @@ func (s *StepCreateServer) Cleanup(state multistep.StateBag) {
 
 	if err != nil {
 		ui.Error(fmt.Sprintf("Failed to delete server \"%s\": %s", serverDetails.Title, err))
+	}
+
+	// Delete the disk
+	if storageUUID != "" {
+		ui.Say(fmt.Sprintf("Deleting disk \"%s\"", storageTitle))
+		err = service.DeleteStorage(&request.DeleteStorageRequest{
+			UUID: storageUUID,
+		})
+
+		if err != nil {
+			ui.Error(fmt.Sprintf("Failed to delete disk \"%s\": %s", storageTitle, err))
+		}
 	}
 }
