@@ -16,6 +16,9 @@ type StepTemplatizeStorage struct {
 
 // Run runs the actual step
 func (s *StepTemplatizeStorage) Run(state multistep.StateBag) multistep.StepAction {
+	// Store a success indicator in the state
+	state.Put("step_templatize_storage_success", false)
+
 	// Extract state
 	ui := state.Get("ui").(packer.Ui)
 	service := state.Get("service").(service.Service)
@@ -71,8 +74,10 @@ func (s *StepTemplatizeStorage) Run(state multistep.StateBag) multistep.StepActi
 				return handleError(err, state)
 			}
 
-			// Storage the details about the templatized storage in the state
+			// Storage the details about the templatized storage in the state. Also update our success
+			// boolean
 			state.Put("storage_details", storageDetails)
+			state.Put("step_templatize_storage_success", true)
 
 			return multistep.ActionContinue
 		}
@@ -82,27 +87,28 @@ func (s *StepTemplatizeStorage) Run(state multistep.StateBag) multistep.StepActi
 	return handleError(fmt.Errorf("Unable to find the storage device to templatize"), state)
 }
 
-// Cleanup
+// Cleanup cleans up after the step
 func (s *StepTemplatizeStorage) Cleanup(state multistep.StateBag) {
-	// Extract state, return if no state has been stored
-	rawDetails, ok := state.GetOk("storage_details")
-
-	if !ok {
+	// Don't perform any cleanup if the step executed successfully
+	if state.Get("step_templatize_storage_success").(bool) {
 		return
 	}
 
-	storageDetails := rawDetails.(*upcloud.StorageDetails)
+	// Extract state, return if no state has been stored
+	if rawDetails, ok := state.GetOk("storage_details"); ok {
+		storageDetails := rawDetails.(*upcloud.StorageDetails)
 
-	service := state.Get("service").(service.Service)
-	ui := state.Get("ui").(packer.Ui)
+		service := state.Get("service").(service.Service)
+		ui := state.Get("ui").(packer.Ui)
 
-	// Delete the storage device
-	err := service.DeleteStorage(&request.DeleteStorageRequest{
-		UUID: storageDetails.UUID,
-	})
+		// Delete the storage device
+		err := service.DeleteStorage(&request.DeleteStorageRequest{
+			UUID: storageDetails.UUID,
+		})
 
-	if err != nil {
-		ui.Error(fmt.Sprintf("%s", err))
-		return
+		if err != nil {
+			ui.Error(fmt.Sprintf("%s", err))
+			return
+		}
 	}
 }
