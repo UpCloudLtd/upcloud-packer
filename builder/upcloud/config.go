@@ -3,6 +3,8 @@ package upcloud
 import (
 	"errors"
 	"fmt"
+	"github.com/jalle19/upcloud-go-sdk/upcloud/client"
+	"github.com/jalle19/upcloud-go-sdk/upcloud/service"
 	"github.com/mitchellh/packer/common"
 	"github.com/mitchellh/packer/helper/communicator"
 	"github.com/mitchellh/packer/helper/config"
@@ -28,6 +30,12 @@ type Config struct {
 
 	StateTimeoutDuration time.Duration
 	ctx                  interpolate.Context
+}
+
+// GetService returns a service object using the credentials specified in the configuration
+func (c *Config) GetService() *service.Service {
+	client := client.New(c.Username, c.Password)
+	return service.New(client)
 }
 
 // NewConfig creates a new configuration, setting default values and validating it along the way

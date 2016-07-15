@@ -3,8 +3,6 @@ package upcloud
 import (
 	"fmt"
 	"github.com/jalle19/upcloud-go-sdk/upcloud"
-	"github.com/jalle19/upcloud-go-sdk/upcloud/client"
-	"github.com/jalle19/upcloud-go-sdk/upcloud/service"
 	"github.com/mitchellh/multistep"
 	"github.com/mitchellh/packer/common"
 	"github.com/mitchellh/packer/helper/communicator"
@@ -23,13 +21,19 @@ type Builder struct {
 
 // Prepare processes the build configuration parameters and validates the configuration
 func (self *Builder) Prepare(raws ...interface{}) (parms []string, err error) {
+	// Parse and create the configuration
 	self.config, err = NewConfig(raws...)
 
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println(common.ScrubConfig(self.config, self.config.Password, self.config.Username))
+	// Check that the client/service is usable
+	service := self.config.GetService()
+
+	if _, err := service.GetAccount(); err != nil {
+		return nil, err
+	}
 
 	return nil, nil
 }
@@ -37,8 +41,7 @@ func (self *Builder) Prepare(raws ...interface{}) (parms []string, err error) {
 // Run executes the actual build steps
 func (self *Builder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (packer.Artifact, error) {
 	// Create the service
-	client := client.New(self.config.Username, self.config.Password)
-	service := service.New(client)
+	service := self.config.GetService()
 
 	// Set up the state which is used to share state between the steps
 	state := new(multistep.BasicStateBag)
