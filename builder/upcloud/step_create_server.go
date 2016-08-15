@@ -23,7 +23,7 @@ func (s *StepCreateServer) Run(state multistep.StateBag) multistep.StepAction {
 
 	// Create the request
 	title := fmt.Sprintf("packer-builder-upcloud-%d", time.Now().Unix())
-	hostname := fmt.Sprintf("%s.example.com", title)
+	hostname := title
 
 	createServerRequest := request.CreateServerRequest{
 		Title:            title,
