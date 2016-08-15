@@ -1,0 +1,30 @@
+{
+  "variables": {
+    "UPCLOUD_USERNAME": "{{ env `UPCLOUD_PACKERUPCLOUDBUILDER_USER` }}",
+    "UPCLOUD_PASSWORD": "{{ env `UPCLOUD_PACKERUPCLOUDBUILDER_PASSWORD` }}"
+  },
+  "builders": [
+    {
+      "type": "upcloud",
+      "username": "{{ user `UPCLOUD_USERNAME` }}",
+      "password": "{{ user `UPCLOUD_PASSWORD` }}",
+      "zone": "de-fra1",
+      "storage_uuid": "01000000-0000-4000-8000-000030060200",
+      "template_prefix": "packer-builder-upcloud-build-host"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "scripts": [
+        "scripts/setup.sh",
+        "scripts/ansible.sh"
+      ]
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "ansible/playbook.yml",
+      "playbook_dir": "ansible"
+    }
+  ]
+}

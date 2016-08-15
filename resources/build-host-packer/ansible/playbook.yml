@@ -1,0 +1,54 @@
+- hosts: all
+  vars:
+    # SSH user
+    ssh_user: builds
+    ssh_user_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDbN81LBjFCbiD97BAhCHrAa/Bgv60uvdNGC/A68DbekTolMra1CZtc8e0KF42Cywe5hrW68zux6WGMa0vRUVK4CYiqqfTezf2rqKDt23ruxo9DaZemIfAl5571LP+ocsN3LzwXASmBWXif+3q2fVaeESCJTAYO+3ua7LW8cTSNaI/DxG37ZM9s2QDUaZ0SQsT4cxUUluCx4sXM6rCwWOLTMhumNdGzFpcGaEXcbUWTAqoYl0fYZe3EBaJOZD/4fhclPmKdhpIAOC8fGa91xoAMTDmfS1O49aNtQYY6oLVvYT/wPUfm6PUfftzk0fabpZT7LaJfVSM5UqfpuYstmPn9"
+    builds_directory: /home/builds/builds
+    nginx_web_root: /var/www/html
+  tasks:
+    # Create SSH user
+    - name: Creating SSH user
+      user: name="{{ ssh_user }}" append=yes groups=sudo shell=/bin/bash
+    
+    - name: Configure password-less sudo for user
+      lineinfile: "dest=/etc/sudoers.d/10-nopasswd owner=root group=root mode=0440
+                  line='{{ ssh_user }} ALL=(ALL) NOPASSWD: ALL'
+                  state=present
+                  create=yes
+                  validate='visudo -cf %s'"
+    
+    - name: Insert authorized_keys
+      authorized_key: user={{ ssh_user }} key="{{ ssh_user_public_key }}" state=present
+    
+    # Disable the root account completely
+    - name: Ensure the root password is disabled
+      command: usermod -p '!' root
+      
+    # Configure firewall
+    - name: Install ufw
+      apt: pkg=ufw state=latest
+      
+    - name: "Configure allowed incoming ports"
+      ufw: rule=allow port={{ item.port }} proto={{ item.protocol }}
+      with_items:
+        - { port: 22, protocol: tcp }
+        - { port: 80, protocol: tcp }
+      
+    # Configure nginx
+    - name: Install nginx
+      apt: pkg=nginx state=latest
+      
+    - name: Create a directory to store builds in
+      file: path={{ builds_directory }} state=directory
+      
+    - name: Remove the nginx web root
+      file: path={{ nginx_web_root }} state=absent
+      
+    - name: Make the nginx root a symlink to the builds directory
+      file: src={{ builds_directory }} state=link dest={{ nginx_web_root }}
+      
+    - name: Ensure home directory permissions are correct
+      file: path="/home/{{ ssh_user }}" owner={{ ssh_user }} group={{ ssh_user }} recurse=yes
+      
+    - name: Restart nginx
+      service: name=nginx state=restarted enabled=yes
