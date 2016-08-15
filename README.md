@@ -6,7 +6,7 @@ This is a Packer builder which can be used to generate storage templates on UpCl
 ## Installation
 
 You can download pre-built binaries of the plugin from 
-https://packer-builder-upcloud-builds.s3.eu-central-1.amazonaws.com/index.html. Once you've downloaded the binary for 
+http://packer-builder-upcloud-build-host.negge.fi/. Once you've downloaded the binary for 
 your operating system and architecture, rename the file to `packer-builder-upcloud`, move it to `~/.packer.d/plugins` 
 and make it executable.
 
