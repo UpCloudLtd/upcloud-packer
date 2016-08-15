@@ -1,4 +1,4 @@
 .idea
 examples/crash.log
-resources/s3/packer-builder-upcloud*
+resources/build-host-web-root/packer-builder-upcloud*
 packer-builder-upcloud
