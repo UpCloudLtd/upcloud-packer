@@ -7,6 +7,7 @@ import (
 	"github.com/jalle19/upcloud-go-sdk/upcloud/service"
 	"github.com/mitchellh/multistep"
 	"github.com/mitchellh/packer/packer"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -84,7 +85,7 @@ func (s *StepTemplatizeStorage) Run(state multistep.StateBag) multistep.StepActi
 	}
 
 	// No storage found, we'll have to abort
-	return handleError(fmt.Errorf("Unable to find the storage device to templatize"), state)
+	return handleError(errors.New("Unable to find the storage device to templatize"), state)
 }
 
 // Cleanup cleans up after the step
