@@ -54,9 +54,15 @@ func (s *StepTemplatizeStorage) Run(state multistep.StateBag) multistep.StepActi
 		if storage.Type == upcloud.StorageTypeDisk {
 			ui.Say(fmt.Sprintf("Templatizing storage device \"%s\" ...", storage.Title))
 
+			// Determine the prefix to use for the template title
+			prefix := storage.Title
+			if config.TemplatePrefix != "" {
+				prefix = config.TemplatePrefix
+			}
+
 			storageDetails, err := service.TemplatizeStorage(&request.TemplatizeStorageRequest{
 				UUID:  storage.UUID,
-				Title: fmt.Sprintf("%s-template-%d", storage.Title, time.Now().Unix()),
+				Title: fmt.Sprintf("%s-template-%d", prefix, time.Now().Unix()),
 			})
 
 			if err != nil {

@@ -19,10 +19,11 @@ type Config struct {
 	Comm                communicator.Config `mapstructure:",squash"`
 
 	// Required configuration values
-	Username    string `mapstructure:"username"`
-	Password    string `mapstructure:"password"`
-	Zone        string `mapstructure:"zone"`
-	StorageUUID string `mapstructure:"storage_uuid"`
+	Username       string `mapstructure:"username"`
+	Password       string `mapstructure:"password"`
+	Zone           string `mapstructure:"zone"`
+	StorageUUID    string `mapstructure:"storage_uuid"`
+	TemplatePrefix string `mapstructure:"template_prefix"`
 
 	// Optional configuration values
 	StorageSize             int    `mapstructure:"storage_size"`

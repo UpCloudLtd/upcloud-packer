@@ -104,6 +104,8 @@ building the template is fairly irrelevant and thus not configurable.
 * `storage_size` (int) The storage size in gigabytes. Defaults to `30`. Changing this value is useful if you aim to build 
 a template for larger server configurations where the server plan's disk size is larger than 30 GB.
 * `state_timeout_duration` (string) The amount of time to wait for resource state changes. Defaults to `5m`.
+* `template_prefix` (string) The prefix to use for the generated template title. Defaults to an empty string, meaning 
+the prefix will be the storage title. You can use this option to easily differentiate between different templates.
 
 ## License
 
