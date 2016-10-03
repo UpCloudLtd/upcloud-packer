@@ -180,7 +180,7 @@ func (s *StepCreateServer) Cleanup(state multistep.StateBag) {
 
 	// Delete the disk
 	if storageUUID != "" {
-		ui.Say(fmt.Sprintf("Deleting disk \"%s\"", storageTitle))
+		ui.Say(fmt.Sprintf("Deleting disk \"%s\" ...", storageTitle))
 		err = service.DeleteStorage(&request.DeleteStorageRequest{
 			UUID: storageUUID,
 		})
