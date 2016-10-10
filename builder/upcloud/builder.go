@@ -3,6 +3,7 @@ package upcloud
 import (
 	"fmt"
 	"github.com/jalle19/upcloud-go-sdk/upcloud"
+	"github.com/jalle19/upcloud-go-sdk/upcloud/request"
 	"github.com/mitchellh/multistep"
 	"github.com/mitchellh/packer/common"
 	"github.com/mitchellh/packer/helper/communicator"
@@ -32,6 +33,19 @@ func (self *Builder) Prepare(raws ...interface{}) (parms []string, err error) {
 	service := self.config.GetService()
 
 	if _, err := service.GetAccount(); err != nil {
+		return nil, err
+	}
+
+	// Check that the specified storage device is a template
+	storageDetails, err := service.GetStorageDetails(&request.GetStorageDetailsRequest{
+		UUID: self.config.StorageUUID,
+	})
+
+	if err == nil && storageDetails.Type != upcloud.StorageTypeTemplate {
+		err = fmt.Errorf("The specified storage UUID is of invalid type \"%s\"", storageDetails.Type)
+	}
+
+	if err != nil {
 		return nil, err
 	}
 
