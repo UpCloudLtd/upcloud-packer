@@ -15,6 +15,7 @@ script:
   - pwd
   - ls -l
   - ls -l builder/upcloud
+  - ls -l /home/travis/gopath/src/github.com/jalle19/packer-builder-upcloud/builder/upcloud
   - go build
 
 #script:
