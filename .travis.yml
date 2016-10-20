@@ -5,8 +5,12 @@ go:
   - 1.7
 
 script:
-  # build for all platforms with gox
+  # install glide and gox
+  - go get github.com/Masterminds/glide
   - go get github.com/mitchellh/gox
+  # install dependencies using glide ("go install" can't unfuck vendored dependencies properly)
+  - glide install && glide update --strip-vendor
+  # build for all platforms with gox
   - gox -arch="amd64" -os="darwin freebsd linux netbsd openbsd windows" -output "dist/{{.OS}}-{{.Arch}}/{{.Dir}}" .
   # create one package per platform
   - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-darwin-386.tar.gz -C dist/darwin-386/ .

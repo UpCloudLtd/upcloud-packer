@@ -2,3 +2,4 @@
 examples/crash.log
 resources/build-host-web-root/packer-builder-upcloud*
 packer-builder-upcloud
+vendor
