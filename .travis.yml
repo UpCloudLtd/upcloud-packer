@@ -13,6 +13,8 @@ install:
   
 script:
   - pwd
+  - ls -l
+  - ls -l builder/upcloud
   - go build
 
 #script:
