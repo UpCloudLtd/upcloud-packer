@@ -1,0 +1,50 @@
+sudo: false
+language: go
+
+go:
+  - 1.7
+
+install:
+  - go get github.com/mitchellh/gox
+  
+script:
+  # build for all platforms with gox
+  - gox -arch="amd64" -os="darwin freebsd linux netbsd openbsd windows" -output "dist/{{.OS}}-{{.Arch}}/{{.Dir}}" .
+  # create one package per platform
+  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-darwin-386.tar.gz -C dist/darwin-386/ .
+  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-darwin-amd64.tar.gz -C dist/darwin-amd64/ .
+  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-freebsd-386.tar.gz -C dist/freebsd-386/ .
+  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-freebsd-amd64.tar.gz -C dist/freebsd-amd64/ .
+  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-freebsd-arm.tar.gz -C dist/freebsd-arm/ .
+  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-linux-386.tar.gz -C dist/linux-386/ .
+  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-linux-amd64.tar.gz -C dist/linux-amd64/ .
+  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-linux-arm.tar.gz -C dist/linux-arm/ .
+  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-netbsd-386.tar.gz -C dist/netbsd-386/ .
+  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-netbsd-amd64.tar.gz -C dist/netbsd-amd64/ .
+  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-netbsd-arm.tar.gz -C dist/netbsd-arm/ .
+  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-openbsd-386.tar.gz -C dist/openbsd-386/ .
+  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-openbsd-amd64.tar.gz -C dist/openbsd-amd64/ .
+  - zip -j packer-builder-upcloud-${TRAVIS_TAG}-windows-386.zip ./dist/windows-386/*
+  - zip -j packer-builder-upcloud-${TRAVIS_TAG}-windows-amd64.zip ./dist/windows-amd64/*
+
+# deploy builds for tags to Github
+deploy:
+  provider: releases
+  api_key:
+    secure: H8DiF1wNLwyHVzxrlH4JbP8EL+FCagAzbWdPV2sJNDmr0uWkyOOILDMMx5ZJPJy0ecQqiUSiWMz9lKsnwVHchrzSEw41SeOFSTh5gFfD/Ft/aMvmb5+KAWxB3FRgu27otaK6L2MngxzQuOqicwcs3S4BEEFkXJeqsRRYbTJYcLmvhbpTPLrdRoMk1KOvMM0yCwEHFzOVoBG2i7HcZOhnc7HM0WM/6DL/zhlTE5SyeIneWDOtAlNYT0z3moFZsBCGNYeJuBJiIypAcJZoi4TmiFfjYfWni4mOCtr86ZeeemGX8yqJUKttN210yT48l8xC2jpXh56ongz+WzQj5NHB16Kzxq5acoeU8RUJItz0m3GtCnq5KbcIixXA9uTu8is3BOX6vngSRqntsUvXj7RNDvW+vkGWAW6LsidcENNs1S5thhCcWctWlEp8JJuqe1kqfxp0moBjACTzg0qVwO+avAYM4/zzUhT2shS0QxYh/e5ZqAdHjeQK5YObaDy82cH0w0uOvTf3WSr8gG4ELZB/KYHSWq7Ws/ziIa0BfHGrkDM8WhFBJVJKoY2zXigraa/nroFJ31bMUhl+qkVG6WC2uSvWWq5qAV2ydNa+Vx3GpTjrcYOAQuhSWkKHaT2poWf4X+izVU7ofw8CjtCglPySwx+lJXrRj3nFa9LckmuFZqg=
+  file:
+    - packer-builder-upcloud-${TRAVIS_TAG}-darwin-386.tar.gz
+    - packer-builder-upcloud-${TRAVIS_TAG}-darwin-amd64.tar.gz
+    - packer-builder-upcloud-${TRAVIS_TAG}-freebsd-386.tar.gz
+    - packer-builder-upcloud-${TRAVIS_TAG}-freebsd-amd64.tar.gz
+    - packer-builder-upcloud-${TRAVIS_TAG}-freebsd-arm.tar.gz
+    - packer-builder-upcloud-${TRAVIS_TAG}-linux-386.tar.gz
+    - packer-builder-upcloud-${TRAVIS_TAG}-linux-amd64.tar.gz
+    - packer-builder-upcloud-${TRAVIS_TAG}-linux-arm.tar.gz
+    - packer-builder-upcloud-${TRAVIS_TAG}-netbsd-386.tar.gz
+    - packer-builder-upcloud-${TRAVIS_TAG}-netbsd-amd64.tar.gz
+    - packer-builder-upcloud-${TRAVIS_TAG}-netbsd-arm.tar.gz
+    - packer-builder-upcloud-${TRAVIS_TAG}-openbsd-386.tar.gz
+    - packer-builder-upcloud-${TRAVIS_TAG}-openbsd-amd64.tar.gz
+  on:
+    repo: Jalle19/packer-builder-upcloud
