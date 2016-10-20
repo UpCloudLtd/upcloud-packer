@@ -4,13 +4,10 @@ language: go
 go:
   - 1.7
 
-install:
-  - go get github.com/mitchellh/gox
-  
 script:
   # build for all platforms with gox
-  - cd $HOME/gopath/src/github.com/Jalle19/packer-builder-upcloud
-  - gox -arch="amd64" -os="darwin freebsd linux netbsd openbsd windows" -output "dist/{{.OS}}-{{.Arch}}/{{.Dir}}"
+  - go get github.com/mitchellh/gox
+  - gox -arch="amd64" -os="darwin freebsd linux netbsd openbsd windows" -output "dist/{{.OS}}-{{.Arch}}/{{.Dir}}" .
   # create one package per platform
   - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-darwin-386.tar.gz -C dist/darwin-386/ .
   - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-darwin-amd64.tar.gz -C dist/darwin-amd64/ .
