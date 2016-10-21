@@ -1,5 +1,13 @@
 # Change log
 
+## 2.0.2
+
+* Fixed stray "." directory in uploaded release archives
+
+## 2.0.1
+
+* Fixed Travis release uploads
+
 ## 2.0.0
 
 * Fixed package name to use uppercase in imports (github.com/Jalle19 instead of github.com/jalle19)
