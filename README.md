@@ -5,22 +5,31 @@ This is a Packer builder which can be used to generate storage templates on UpCl
 
 ## Installation
 
+### Pre-built binaries
+
 You can download pre-built binaries of the plugin from 
 http://packer-builder-upcloud-build-host.negge.fi/. Once you've downloaded the binary for 
 your operating system and architecture, rename the file to `packer-builder-upcloud`, move it to `~/.packer.d/plugins` 
 and make it executable.
 
-To install from source, use something like this:
+### Installing from source
+
+#### Prerequisites
+
+You will need to have the [Glide](https://github.com/Masterminds/glide) package manager installed. Follow the 
+instructions in their README to install it.
+
+#### Building and installing
+
+Run the following commands:
 
 ```
 go get github.com/Jalle19/packer-builder-upcloud
 cd $GOPATH/src/github.com/Jalle19/packer-builder-upcloud
-go install
-cp $GOPATH/bin/packer-builder-upcloud ~/.packer.d/plugins
+glide install --strip-vendor
+go build
+cp packer-builder-upcloud ~/.packer.d/plugins
 ```
-
-If you attempt to build it from source you'll most likely bump into some vendored dependency versioning issues. You can 
-usually solve these by removing the vendored packages Go complains about from `$GOPATH/src/github.com/packer`.
 
 ## Usage
 

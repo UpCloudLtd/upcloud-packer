@@ -1,0 +1,24 @@
+package: github.com/Jalle19/packer-builder-upcloud 
+flatten: true 
+import: 
+- package: github.com/Jalle19/upcloud-go-sdk 
+  subpackages: 
+  - upcloud 
+  - upcloud/client 
+  - upcloud/request 
+  - upcloud/service 
+- package: github.com/mitchellh/multistep 
+- package: github.com/mitchellh/packer 
+  version: ~0.10.2 
+  subpackages: 
+  - common 
+  - helper/communicator 
+  - helper/config 
+  - packer 
+  - packer/plugin 
+  - template/interpolate 
+- package: github.com/pkg/errors 
+  version: ~0.8.0 
+- package: golang.org/x/crypto 
+  subpackages: 
+  - ssh 
