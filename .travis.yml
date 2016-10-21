@@ -14,9 +14,9 @@ install:
 script:
   # build for all platforms with gox
   - gox -arch="amd64" -os="darwin linux windows" -output "dist/{{.OS}}-{{.Arch}}/{{.Dir}}" .
-  # create one package per platform
-  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-darwin-amd64.tar.gz dist/darwin-amd64/*
-  - tar -cvzf packer-builder-upcloud-${TRAVIS_TAG}-linux-amd64.tar.gz dist/linux-amd64/*
+  # create one archive per platform
+  - zip -j packer-builder-upcloud-${TRAVIS_TAG}-darwin-amd64.zip ./dist/darwin-amd64/*
+  - zip -j packer-builder-upcloud-${TRAVIS_TAG}-linux-amd64.zip ./dist/linux-amd64/*
   - zip -j packer-builder-upcloud-${TRAVIS_TAG}-windows-amd64.zip ./dist/windows-amd64/*
 
 # deploy builds for tags to Github
