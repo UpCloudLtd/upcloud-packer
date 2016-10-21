@@ -1,5 +1,10 @@
 # Change log
 
+## 2.0.0
+
+* Fixed package name to use uppercase in imports (github.com/Jalle19 instead of github.com/jalle19)
+* Have Travis CI build tags and upload them to GitHub
+
 ## 1.0.4
 
 * Validate the specified storage device during `packer validate` (prevents accidentally trying to use CD-ROM devices 
