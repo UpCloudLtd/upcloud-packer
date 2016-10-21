@@ -30,3 +30,4 @@ deploy:
     - packer-builder-upcloud-${TRAVIS_TAG}-windows-amd64.zip
   on:
     repo: Jalle19/packer-builder-upcloud
+    tags: true
