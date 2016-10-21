@@ -1,17 +1,9 @@
 # Change log
 
-## 2.0.3
+## 2.0.4
 
-* Fix confusing directory structure in generated release archives
+* Fix some issues with the Travis releases
 * Remove everything related to the old build host
-
-## 2.0.2
-
-* Fixed stray "." directory in uploaded release archives
-
-## 2.0.1
-
-* Fixed Travis release uploads
 
 ## 2.0.0
 
