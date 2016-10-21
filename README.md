@@ -9,7 +9,8 @@ This is a Packer builder which can be used to generate storage templates on UpCl
 
 You can download pre-built binaries of the plugin from the 
 [GitHub releases page](https://github.com/Jalle19/packer-builder-upcloud/releases). Just download the archive for your 
-operating system and architecture, then unpack the contents to `~/.packer.d/plugins`. Make sure the file is executable.
+operating system and architecture, unpack it, then place the binary in `~/.packer.d/plugins`. Make sure the file is 
+executable.
 
 ### Installing from source
 

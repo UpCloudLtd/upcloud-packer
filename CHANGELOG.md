@@ -1,5 +1,10 @@
 # Change log
 
+## 2.0.3
+
+* Fix confusing directory structure in generated release archives
+* Remove everything related to the old build host
+
 ## 2.0.2
 
 * Fixed stray "." directory in uploaded release archives
