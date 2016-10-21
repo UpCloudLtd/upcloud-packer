@@ -25,8 +25,8 @@ deploy:
   api_key:
     secure: H8DiF1wNLwyHVzxrlH4JbP8EL+FCagAzbWdPV2sJNDmr0uWkyOOILDMMx5ZJPJy0ecQqiUSiWMz9lKsnwVHchrzSEw41SeOFSTh5gFfD/Ft/aMvmb5+KAWxB3FRgu27otaK6L2MngxzQuOqicwcs3S4BEEFkXJeqsRRYbTJYcLmvhbpTPLrdRoMk1KOvMM0yCwEHFzOVoBG2i7HcZOhnc7HM0WM/6DL/zhlTE5SyeIneWDOtAlNYT0z3moFZsBCGNYeJuBJiIypAcJZoi4TmiFfjYfWni4mOCtr86ZeeemGX8yqJUKttN210yT48l8xC2jpXh56ongz+WzQj5NHB16Kzxq5acoeU8RUJItz0m3GtCnq5KbcIixXA9uTu8is3BOX6vngSRqntsUvXj7RNDvW+vkGWAW6LsidcENNs1S5thhCcWctWlEp8JJuqe1kqfxp0moBjACTzg0qVwO+avAYM4/zzUhT2shS0QxYh/e5ZqAdHjeQK5YObaDy82cH0w0uOvTf3WSr8gG4ELZB/KYHSWq7Ws/ziIa0BfHGrkDM8WhFBJVJKoY2zXigraa/nroFJ31bMUhl+qkVG6WC2uSvWWq5qAV2ydNa+Vx3GpTjrcYOAQuhSWkKHaT2poWf4X+izVU7ofw8CjtCglPySwx+lJXrRj3nFa9LckmuFZqg=
   file:
-    - packer-builder-upcloud-${TRAVIS_TAG}-darwin-amd64.tar.gz
-    - packer-builder-upcloud-${TRAVIS_TAG}-linux-amd64.tar.gz
+    - packer-builder-upcloud-${TRAVIS_TAG}-darwin-amd64.zip
+    - packer-builder-upcloud-${TRAVIS_TAG}-linux-amd64.zip
     - packer-builder-upcloud-${TRAVIS_TAG}-windows-amd64.zip
   on:
     repo: Jalle19/packer-builder-upcloud

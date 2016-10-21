@@ -1,6 +1,6 @@
 # Change log
 
-## 2.0.4
+## 2.0.5
 
 * Fix some issues with the Travis releases
 * Remove everything related to the old build host
