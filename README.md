@@ -13,8 +13,8 @@ and make it executable.
 To install from source, use something like this:
 
 ```
-go get github.com/jalle19/packer-builder-upcloud
-cd $GOPATH/src/github.com/jalle19/packer-builder-upcloud
+go get github.com/Jalle19/packer-builder-upcloud
+cd $GOPATH/src/github.com/Jalle19/packer-builder-upcloud
 go install
 cp $GOPATH/bin/packer-builder-upcloud ~/.packer.d/plugins
 ```

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/jalle19/packer-builder-upcloud/builder/upcloud"
+	"github.com/Jalle19/packer-builder-upcloud/builder/upcloud"
 	"github.com/mitchellh/packer/packer/plugin"
 )
 

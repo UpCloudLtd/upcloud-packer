@@ -2,8 +2,8 @@ package upcloud
 
 import (
 	"fmt"
-	"github.com/jalle19/upcloud-go-sdk/upcloud/request"
-	"github.com/jalle19/upcloud-go-sdk/upcloud/service"
+	"github.com/Jalle19/upcloud-go-sdk/upcloud/request"
+	"github.com/Jalle19/upcloud-go-sdk/upcloud/service"
 	"log"
 )
 
