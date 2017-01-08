@@ -1,5 +1,7 @@
 # packer-builder-upcloud
 
+[![Build Status](https://travis-ci.org/Jalle19/packer-builder-upcloud.svg?branch=master)](https://travis-ci.org/Jalle19/packer-builder-upcloud)
+
 This is a Packer builder which can be used to generate storage templates on UpCloud. It uses the 
 [UpCloud Go SDK](https://github.com/Jalle19/upcloud-go-sdk) to interface with UpCloud's API.
 
