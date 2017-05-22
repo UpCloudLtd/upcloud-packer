@@ -29,5 +29,5 @@ deploy:
     - packer-builder-upcloud-${TRAVIS_TAG}-linux-amd64.zip
     - packer-builder-upcloud-${TRAVIS_TAG}-windows-amd64.zip
   on:
-    repo: Jalle19/packer-builder-upcloud
+    repo: UpCloudLtd/packer-builder-upcloud
     tags: true

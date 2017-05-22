@@ -1,5 +1,5 @@
-hash: 45a3bafc0ffb9de9599fd2ca84660f39dfc3d7c3eefc4a44a0818ae2a0f977db
-updated: 2016-10-21T11:51:57.158792382+03:00
+hash: c9e53c3b60b031280328d8e31ebd28cb845223c1d17756ca98ec1195f08dcb40
+updated: 2017-05-22T17:11:26.111178857+03:00
 imports:
 - name: github.com/blang/semver
   version: 60ec3488bfea7cca02b021d106d9911120d25fe9
@@ -17,13 +17,6 @@ imports:
   version: 7e3c02b30806fa5779d3bdfc152ce4c6f40e7b38
 - name: github.com/hashicorp/yamux
   version: df949784da9ed028ee76df44652e42d37a09d7e4
-- name: github.com/Jalle19/upcloud-go-sdk
-  version: c20c5bf3352ae50af31cd4d4d0e3d566195972d1
-  subpackages:
-  - upcloud
-  - upcloud/client
-  - upcloud/request
-  - upcloud/service
 - name: github.com/kr/fs
   version: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
 - name: github.com/masterzen/simplexml
@@ -81,6 +74,13 @@ imports:
   version: 646ae4a518c1c3be0739df898118d9bccf993858
   subpackages:
   - codec
+- name: github.com/UpCloudLtd/upcloud-go-sdk
+  version: a308c4efe3920b534df864f2a281c77bbba2b1cf
+  subpackages:
+  - upcloud
+  - upcloud/client
+  - upcloud/request
+  - upcloud/service
 - name: golang.org/x/crypto
   version: 1f22c0103821b9390939b6776727195525381532
   subpackages:

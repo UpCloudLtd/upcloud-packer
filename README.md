@@ -1,16 +1,16 @@
 # packer-builder-upcloud
 
-[![Build Status](https://travis-ci.org/Jalle19/packer-builder-upcloud.svg?branch=master)](https://travis-ci.org/Jalle19/packer-builder-upcloud)
+[![Build Status](https://travis-ci.org/UpCloudLtd/packer-builder-upcloud.svg?branch=master)](https://travis-ci.org/UpCloudLtd/packer-builder-upcloud)
 
 This is a Packer builder which can be used to generate storage templates on UpCloud. It uses the 
-[UpCloud Go SDK](https://github.com/Jalle19/upcloud-go-sdk) to interface with UpCloud's API.
+[UpCloud Go SDK](https://github.com/UpCloudLtd/upcloud-go-sdk) to interface with UpCloud's API.
 
 ## Installation
 
 ### Pre-built binaries
 
 You can download pre-built binaries of the plugin from the 
-[GitHub releases page](https://github.com/Jalle19/packer-builder-upcloud/releases). Just download the archive for your 
+[GitHub releases page](https://github.com/UpCloudLtd/packer-builder-upcloud/releases). Just download the archive for your 
 operating system and architecture, unpack it, then place the binary in `~/.packer.d/plugins`. Make sure the file is 
 executable.
 
@@ -26,8 +26,8 @@ instructions in their README to install it.
 Run the following commands:
 
 ```
-go get github.com/Jalle19/packer-builder-upcloud
-cd $GOPATH/src/github.com/Jalle19/packer-builder-upcloud
+go get github.com/UpCloudLtd/packer-builder-upcloud
+cd $GOPATH/src/github.com/UpCloudLtd/packer-builder-upcloud
 glide install --strip-vendor
 go build
 cp packer-builder-upcloud ~/.packer.d/plugins

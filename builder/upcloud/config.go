@@ -3,8 +3,8 @@ package upcloud
 import (
 	"errors"
 	"fmt"
-	"github.com/Jalle19/upcloud-go-sdk/upcloud/client"
-	"github.com/Jalle19/upcloud-go-sdk/upcloud/service"
+	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/client"
+	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/service"
 	"github.com/mitchellh/packer/common"
 	"github.com/mitchellh/packer/helper/communicator"
 	"github.com/mitchellh/packer/helper/config"
