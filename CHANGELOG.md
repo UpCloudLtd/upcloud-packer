@@ -1,5 +1,13 @@
 # Change log
 
+## 3.0.0
+
+* Moved the project to UpCloud's GitHub organization
+* Adapted to the fact that the UpCloud Go SDK was moved to UpCloud's GitHub organization
+* Renamed the repository from `packer-builder-upcloud` to `upcloud-packer`. The released binaries still use the 
+`packer-$TYPE-$NAME` naming scheme though.
+* Bumped the Packer dependency to v1.0.0
+
 ## 2.0.5
 
 * Fix some issues with the Travis releases
