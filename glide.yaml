@@ -8,8 +8,8 @@ import:
   - upcloud/request 
   - upcloud/service 
 - package: github.com/mitchellh/multistep 
-- package: github.com/mitchellh/packer 
-  version: ~0.10.2 
+- package: github.com/hashicorp/packer 
+  version: ~1.0.0
   subpackages: 
   - common 
   - helper/communicator 

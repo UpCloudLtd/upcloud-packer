@@ -1,5 +1,5 @@
-hash: c9e53c3b60b031280328d8e31ebd28cb845223c1d17756ca98ec1195f08dcb40
-updated: 2017-05-22T17:11:26.111178857+03:00
+hash: dddc244271560ac600c6947c34a57561a865d3a90946c5865f96a6947967d0f7
+updated: 2017-05-22T17:17:35.355751564+03:00
 imports:
 - name: github.com/blang/semver
   version: 60ec3488bfea7cca02b021d106d9911120d25fe9
@@ -15,6 +15,15 @@ imports:
   version: d30f09973e19c1dfcd120b2d9c4f168e68d6b5d5
 - name: github.com/hashicorp/go-version
   version: 7e3c02b30806fa5779d3bdfc152ce4c6f40e7b38
+- name: github.com/hashicorp/packer
+  version: e3d65a193e96c7b228589fc9699e39998ec12e4e
+  subpackages:
+  - common
+  - helper/communicator
+  - helper/config
+  - packer
+  - packer/plugin
+  - template/interpolate
 - name: github.com/hashicorp/yamux
   version: df949784da9ed028ee76df44652e42d37a09d7e4
 - name: github.com/kr/fs
