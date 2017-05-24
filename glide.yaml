@@ -1,4 +1,4 @@
-package: github.com/UpCloudLtd/packer-builder-upcloud 
+package: github.com/UpCloudLtd/upcloud-packer 
 flatten: true 
 import: 
 - package: github.com/UpCloudLtd/upcloud-go-sdk 
