@@ -1,4 +1,5 @@
 .idea
 examples/crash.log
-packer-builder-upcloud
+dist
+upcloud-packer
 vendor
