@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"golang.org/x/crypto/ssh"
 
-	"github.com/Jalle19/upcloud-go-sdk/upcloud"
+	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud"
 	"github.com/mitchellh/multistep"
 )
 

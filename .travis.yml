@@ -13,7 +13,7 @@ install:
   
 script:
   # build for all platforms with gox
-  - gox -arch="amd64" -os="darwin linux windows" -output "dist/{{.OS}}-{{.Arch}}/{{.Dir}}" .
+  - gox -arch="amd64" -os="darwin linux windows" -output "dist/{{.OS}}-{{.Arch}}/packer-builder-upcloud" .
   # create one archive per platform
   - zip -j packer-builder-upcloud-${TRAVIS_TAG}-darwin-amd64.zip ./dist/darwin-amd64/*
   - zip -j packer-builder-upcloud-${TRAVIS_TAG}-linux-amd64.zip ./dist/linux-amd64/*
@@ -29,5 +29,5 @@ deploy:
     - packer-builder-upcloud-${TRAVIS_TAG}-linux-amd64.zip
     - packer-builder-upcloud-${TRAVIS_TAG}-windows-amd64.zip
   on:
-    repo: Jalle19/packer-builder-upcloud
+    repo: UpCloudLtd/upcloud-packer
     tags: true

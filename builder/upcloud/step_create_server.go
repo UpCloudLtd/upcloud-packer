@@ -2,9 +2,9 @@ package upcloud
 
 import (
 	"fmt"
-	"github.com/Jalle19/upcloud-go-sdk/upcloud"
-	"github.com/Jalle19/upcloud-go-sdk/upcloud/request"
-	"github.com/Jalle19/upcloud-go-sdk/upcloud/service"
+	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud"
+	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/request"
+	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/service"
 	"github.com/mitchellh/multistep"
 	"github.com/mitchellh/packer/packer"
 	"time"

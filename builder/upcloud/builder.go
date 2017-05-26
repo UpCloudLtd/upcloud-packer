@@ -2,8 +2,8 @@ package upcloud
 
 import (
 	"fmt"
-	"github.com/Jalle19/upcloud-go-sdk/upcloud"
-	"github.com/Jalle19/upcloud-go-sdk/upcloud/request"
+	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud"
+	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/request"
 	"github.com/mitchellh/multistep"
 	"github.com/mitchellh/packer/common"
 	"github.com/mitchellh/packer/helper/communicator"
@@ -12,7 +12,7 @@ import (
 )
 
 // The unique ID for this builder.
-const BuilderId = "jalle19.upcloud"
+const BuilderId = "upcloudltd.upcloud"
 
 // Builder represents a Packer Builder.
 type Builder struct {

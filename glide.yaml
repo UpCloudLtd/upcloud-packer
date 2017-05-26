@@ -1,15 +1,15 @@
-package: github.com/Jalle19/packer-builder-upcloud 
+package: github.com/UpCloudLtd/upcloud-packer 
 flatten: true 
 import: 
-- package: github.com/Jalle19/upcloud-go-sdk 
+- package: github.com/UpCloudLtd/upcloud-go-sdk 
   subpackages: 
   - upcloud 
   - upcloud/client 
   - upcloud/request 
   - upcloud/service 
 - package: github.com/mitchellh/multistep 
-- package: github.com/mitchellh/packer 
-  version: ~0.10.2 
+- package: github.com/hashicorp/packer 
+  version: ~1.0.0
   subpackages: 
   - common 
   - helper/communicator 
