@@ -1,25 +1,20 @@
-# upcloud-packer
+# UpCloud Packer builder
 
 [![Build Status](https://travis-ci.org/UpCloudLtd/upcloud-packer.svg?branch=master)](https://travis-ci.org/UpCloudLtd/upcloud-packer)
 
-This is a Packer builder which can be used to generate storage templates on UpCloud. It uses the 
-[UpCloud Go SDK](https://github.com/UpCloudLtd/upcloud-go-sdk) to interface with UpCloud's API.
+This is a Packer builder which can be used to generate storage templates on UpCloud. It uses the [UpCloud Go SDK](https://github.com/UpCloudLtd/upcloud-go-sdk) to interface with the UpCloud API.
 
 ## Installation
 
 ### Pre-built binaries
 
-You can download pre-built binaries of the plugin from the 
-[GitHub releases page](https://github.com/UpCloudLtd/upcloud-packer/releases). Just download the archive for your 
-operating system and architecture, unpack it, then place the binary in `~/.packer.d/plugins`. Make sure the file is 
-executable.
+You can download pre-built binaries of the plugin from the [GitHub releases page](https://github.com/UpCloudLtd/upcloud-packer/releases). Just download the archive for your operating system and architecture, unpack it, then place the binary in `~/.packer.d/plugins`. Make sure the file is executable.
 
 ### Installing from source
 
 #### Prerequisites
 
-You will need to have the [Glide](https://github.com/Masterminds/glide) package manager installed. Follow the 
-instructions in their README to install it.
+You will need to have the [Go](https://golang.org/) programming language, the [Glide](https://github.com/Masterminds/glide) package manager, and the [Packer](https://www.packer.io/) itself installed. You can find instructions to install each of the prerequisites at their documentation.
 
 #### Building and installing
 
@@ -36,10 +31,9 @@ cp upcloud-packer ~/.packer.d/plugins/packer-builder-upcloud
 ## Usage
 
 The builder will automatically generate a temporary SSH key pair for the `root` user which is used for provisioning. 
-This means that if you don't provision a user during the process you will not be able to gain access to your server.
+This means that if you do not provision a user during the process you will not be able to gain access to your server.
 
-Here is a sample template (you can find this in the `examples/` directory). It reads your UpCloud API credentials from 
-the environment and creates an Ubuntu 14.04 server in the `fi-hel1` region.
+Here is a sample template, which you can also find in the `examples/` directory. It reads your UpCloud API credentials from the environment and creates an Ubuntu 14.04 server in the `fi-hel1` region.
 
 ```json
 {
@@ -65,7 +59,7 @@ the environment and creates an Ubuntu 14.04 server in the `fi-hel1` region.
 }
 ```
 
-If everything goes according to plan, you should see something like this:
+If everything goes according to plan, you should see something like the example output below.
 
 ```
 $ packer build examples/basic_plan.json 
@@ -105,18 +99,16 @@ building the template is fairly irrelevant and thus not configurable.
 
 ### Required values
 
-* `username` (string) The username to use when interfacing with the API
-* `password` (string) The password to use when interfacing with the API
+* `username` (string) The username to use when interfacing with the UpCloud API
+* `password` (string) The password to use when interfacing with the UpCloud API
 * `zone` (string) The zone in which the server and template should be created (e.g. `fi-hel1`)
 * `storage_uuid` (string) The UUID of the storage you want to use as a template when creating the server
 
 ### Optional values
 
-* `storage_size` (int) The storage size in gigabytes. Defaults to `30`. Changing this value is useful if you aim to build 
-a template for larger server configurations where the server plan's disk size is larger than 30 GB.
+* `storage_size` (int) The storage size in gigabytes. Defaults to `30`. Changing this value is useful if you aim to build a template for larger server configurations where the preconfigured server disk is larger than 30 GB. Even the operation system disk can be later extended if needed.
 * `state_timeout_duration` (string) The amount of time to wait for resource state changes. Defaults to `5m`.
-* `template_prefix` (string) The prefix to use for the generated template title. Defaults to an empty string, meaning 
-the prefix will be the storage title. You can use this option to easily differentiate between different templates.
+* `template_prefix` (string) The prefix to use for the generated template title. Defaults to an empty string, meaning the prefix will be the storage title. You can use this option to easily differentiate between different templates.
 
 ## License
 
