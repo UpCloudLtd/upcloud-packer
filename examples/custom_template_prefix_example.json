@@ -18,9 +18,9 @@
     {
       "type": "shell",
       "inline": [
-	    "apt-get update",
-		"apt-get upgrade -y",
-		"echo '<ssh-rsa_key>' | tee /root/.ssh/authorized_keys"
+        "apt-get update",
+        "apt-get upgrade -y",
+        "echo '<ssh-rsa_key>' | tee /root/.ssh/authorized_keys"
       ]
     }
   ]
