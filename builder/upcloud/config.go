@@ -11,12 +11,14 @@ import (
 	"github.com/mitchellh/packer/packer"
 	"github.com/mitchellh/packer/template/interpolate"
 	"time"
+	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/request"
+	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud"
 )
 
 // Config represents the configuration for this builder
 type Config struct {
-	common.PackerConfig `mapstructure:",squash"`
-	Comm                communicator.Config `mapstructure:",squash"`
+	common.PackerConfig      `mapstructure:",squash"`
+	Comm communicator.Config `mapstructure:",squash"`
 
 	// Required configuration values
 	Username       string `mapstructure:"username"`
@@ -28,9 +30,36 @@ type Config struct {
 	// Optional configuration values
 	StorageSize             int    `mapstructure:"storage_size"`
 	RawStateTimeoutDuration string `mapstructure:"state_timeout_duration"`
+	IPs                     []IP   `mapstructure:"ips"`
 
 	StateTimeoutDuration time.Duration
 	ctx                  interpolate.Context
+}
+
+type IP struct {
+	Access string `mapstructure:"access"`
+	Family string `mapstructure:"family"`
+}
+
+func (c *Config) GetIPAddresses() (ips []request.CreateServerIPAddress) {
+
+	if len(c.IPs) == 0 {
+		// default to standard setup for backward compatibility
+		return []request.CreateServerIPAddress{
+			{Access: upcloud.IPAddressAccessPrivate, Family: upcloud.IPAddressFamilyIPv4,},
+			{Access: upcloud.IPAddressAccessPublic, Family: upcloud.IPAddressFamilyIPv4,},
+			{Access: upcloud.IPAddressAccessPublic, Family: upcloud.IPAddressFamilyIPv6,},
+		}
+	}
+
+	for _, ip := range c.IPs {
+		ips = append(ips, request.CreateServerIPAddress{
+			Access: ip.Access,
+			Family: ip.Family,
+		})
+	}
+
+	return ips
 }
 
 // GetService returns a service object using the credentials specified in the configuration
@@ -98,6 +127,6 @@ func NewConfig(raws ...interface{}) (*Config, error) {
 	if len(errs.Errors) > 0 {
 		return nil, errors.New(errs.Error())
 	}
-
+	
 	return c, nil
 }

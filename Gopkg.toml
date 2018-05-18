@@ -1,0 +1,15 @@
+[[constraint]]
+  name = "github.com/UpCloudLtd/upcloud-go-sdk"
+  version = "2.0.0"
+
+[[constraint]]
+  name = "github.com/mitchellh/packer"
+  version = "0.10.2"
+
+[[constraint]]
+  name = "github.com/pkg/errors"
+  version = "0.8.0"
+
+[prune]
+  go-tests = true
+  unused-packages = true

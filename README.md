@@ -122,6 +122,7 @@ This section describes the available configuration options for the builder. Plea
 * `storage_size` (int) The storage size in gigabytes. Defaults to `30`. Changing this value is useful if you aim to build a template for larger server configurations where the preconfigured server disk is larger than 30 GB. The operating system disk can also be later extended if needed.
 * `state_timeout_duration` (string) The amount of time to wait for resource state changes. Defaults to `5m`.
 * `template_prefix` (string) The prefix to use for the generated template title. Defaults to an empty string, meaning the prefix will be the storage title. You can use this option to easily differentiate between different templates.
+* `ips` (array) What IPs to request during the creation of the server for building the packer image
 
 ## License
 

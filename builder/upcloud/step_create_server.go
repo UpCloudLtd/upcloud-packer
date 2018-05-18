@@ -41,20 +41,7 @@ func (s *StepCreateServer) Run(state multistep.StateBag) multistep.StepAction {
 				Tier:    upcloud.StorageTierMaxIOPS,
 			},
 		},
-		IPAddresses: []request.CreateServerIPAddress{
-			{
-				Access: upcloud.IPAddressAccessPrivate,
-				Family: upcloud.IPAddressFamilyIPv4,
-			},
-			{
-				Access: upcloud.IPAddressAccessPublic,
-				Family: upcloud.IPAddressFamilyIPv4,
-			},
-			{
-				Access: upcloud.IPAddressAccessPublic,
-				Family: upcloud.IPAddressFamilyIPv6,
-			},
-		},
+		IPAddresses: config.GetIPAddresses(),
 		LoginUser: &request.LoginUser{
 			CreatePassword: "no",
 			Username:       config.Comm.SSHUsername,
