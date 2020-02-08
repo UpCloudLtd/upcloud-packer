@@ -10,6 +10,7 @@ import (
 	"github.com/mitchellh/packer/helper/config"
 	"github.com/mitchellh/packer/packer"
 	"github.com/mitchellh/packer/template/interpolate"
+	"os"
 	"time"
 )
 
@@ -28,6 +29,8 @@ type Config struct {
 	// Optional configuration values
 	StorageSize             int    `mapstructure:"storage_size"`
 	RawStateTimeoutDuration string `mapstructure:"state_timeout_duration"`
+	SSHPrivateKeyFile       string `mapstructure:"ssh_private_keyfile"`
+	SSHPublicKeyFile        string `mapstructure:"ssh_public_keyfile"`
 
 	StateTimeoutDuration time.Duration
 	ctx                  interpolate.Context
@@ -66,6 +69,17 @@ func NewConfig(raws ...interface{}) (*Config, error) {
 	// Validation
 	var errs *packer.MultiError
 	errs = packer.MultiErrorAppend(errs, c.Comm.Prepare(&c.ctx)...)
+
+	if c.SSHPrivateKeyFile != "" && c.SSHPublicKeyFile != "" {
+		if _, err := os.Stat(c.SSHPrivateKeyFile); os.IsNotExist(err) {
+			errs = packer.MultiErrorAppend(
+				errs, errors.New("ssh_private_keyfile does not exist"))
+		}
+		if _, err := os.Stat(c.SSHPublicKeyFile); os.IsNotExist(err) {
+			errs = packer.MultiErrorAppend(
+				errs, errors.New("ssh_public_keyfile does not exist"))
+		}
+	}
 
 	// Check for required configurations that will display errors if not set
 	if c.Username == "" {
