@@ -17,7 +17,7 @@ type StepTemplatizeStorage struct {
 }
 
 // Run runs the actual step
-func (s *StepTemplatizeStorage) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
+func (s *StepTemplatizeStorage) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
 	// Store a success indicator in the state
 	state.Put("step_templatize_storage_success", false)
 

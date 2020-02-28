@@ -16,7 +16,7 @@ type StepCreateServer struct {
 }
 
 // Run performs the actual step
-func (s *StepCreateServer) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
+func (s *StepCreateServer) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
 	// Extract state
 	ui := state.Get("ui").(packer.Ui)
 	service := state.Get("service").(service.Service)

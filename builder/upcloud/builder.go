@@ -22,22 +22,22 @@ type Builder struct {
 	runner multistep.Runner
 }
 
-func (self *Builder) ConfigSpec() hcldec.ObjectSpec {
-	return self.config.FlatMapstructure().HCL2Spec()
+func (b *Builder) ConfigSpec() hcldec.ObjectSpec {
+	return b.config.FlatMapstructure().HCL2Spec()
 }
 
 // Prepare processes the build configuration parameters and validates the configuration
-func (self *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
+func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 	var err error
 	// Parse and create the configuration
-	self.config, err = NewConfig(raws...)
+	b.config, err = NewConfig(raws...)
 
 	if err != nil {
 		return nil, nil, err
 	}
 
 	// Check that the client/service is usable
-	service := self.config.GetService()
+	service := b.config.GetService()
 
 	if _, err := service.GetAccount(); err != nil {
 		return nil, nil, err
@@ -45,7 +45,7 @@ func (self *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 
 	// Check that the specified storage device is a template
 	storageDetails, err := service.GetStorageDetails(&request.GetStorageDetailsRequest{
-		UUID: self.config.StorageUUID,
+		UUID: b.config.StorageUUID,
 	})
 
 	if err == nil && storageDetails.Type != upcloud.StorageTypeTemplate {
@@ -60,13 +60,13 @@ func (self *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 }
 
 // Run executes the actual build steps
-func (self *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
+func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
 	// Create the service
-	service := self.config.GetService()
+	service := b.config.GetService()
 
 	// Set up the state which is used to share state between the steps
 	state := new(multistep.BasicStateBag)
-	state.Put("config", *self.config)
+	state.Put("config", *b.config)
 	state.Put("service", *service)
 	state.Put("hook", hook)
 	state.Put("ui", ui)
@@ -74,12 +74,12 @@ func (self *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (p
 	// Build the steps
 	steps := []multistep.Step{
 		&StepCreateSSHKey{
-			Debug:        self.config.PackerDebug,
-			DebugKeyPath: fmt.Sprintf("packer-builder-upcloud-%s.pem", self.config.PackerBuildName),
+			Debug:        b.config.PackerDebug,
+			DebugKeyPath: fmt.Sprintf("packer-builder-upcloud-%s.pem", b.config.PackerBuildName),
 		},
 		new(StepCreateServer),
 		&communicator.StepConnect{
-			Config:    &self.config.Comm,
+			Config:    &b.config.Comm,
 			Host:      sshHostCallback,
 			SSHConfig: sshConfigCallback,
 		},
@@ -88,8 +88,8 @@ func (self *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (p
 	}
 
 	// Create the runner which will run the steps we just build
-	self.runner = &multistep.BasicRunner{Steps: steps}
-	self.runner.Run(ctx, state)
+	b.runner = &multistep.BasicRunner{Steps: steps}
+	b.runner.Run(ctx, state)
 
 	if rawErr, ok := state.GetOk("error"); ok {
 		return nil, rawErr.(error)
@@ -117,8 +117,8 @@ func (self *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (p
 }
 
 // Cancel is called when the build is cancelled
-func (self *Builder) Cancel() {
-	if self.runner != nil {
+func (b *Builder) Cancel() {
+	if b.runner != nil {
 		log.Println("Cancelling the step runner ...")
 	}
 	fmt.Println("Cancelling the builder ...")
