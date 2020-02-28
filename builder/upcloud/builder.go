@@ -118,8 +118,5 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 
 // Cancel is called when the build is cancelled
 func (b *Builder) Cancel() {
-	if b.runner != nil {
-		log.Println("Cancelling the step runner ...")
-	}
 	fmt.Println("Cancelling the builder ...")
 }
