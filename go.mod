@@ -7,7 +7,6 @@ require (
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/hashicorp/hcl/v2 v2.3.0
 	github.com/hashicorp/packer v1.5.4
-	github.com/pkg/errors v0.9.1
 	github.com/zclconf/go-cty v1.2.1
 	golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
 )

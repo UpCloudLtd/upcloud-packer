@@ -2,13 +2,13 @@ package upcloud
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud/request"
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud/service"
 	"github.com/hashicorp/packer/helper/multistep"
 	"github.com/hashicorp/packer/packer"
-	"github.com/pkg/errors"
 	"time"
 )
 
