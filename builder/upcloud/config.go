@@ -35,8 +35,8 @@ type Config struct {
 
 // GetService returns a service object using the credentials specified in the configuration
 func (c *Config) GetService() *service.Service {
-	client := client.New(c.Username, c.Password)
-	return service.New(client)
+	t := client.New(c.Username, c.Password)
+	return service.New(t)
 }
 
 // NewConfig creates a new configuration, setting default values and validating it along the way
