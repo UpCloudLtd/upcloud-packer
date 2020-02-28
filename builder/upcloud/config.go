@@ -95,7 +95,7 @@ func NewConfig(raws ...interface{}) (*Config, error) {
 	}
 	c.StateTimeoutDuration = stateTimeout
 
-	if errs != nil {
+	if len(errs.Errors) > 0 {
 		return nil, errs
 	}
 
