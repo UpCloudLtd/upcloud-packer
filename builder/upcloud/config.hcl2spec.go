@@ -54,15 +54,15 @@ type FlatConfig struct {
 	WinRMInsecure             *bool             `mapstructure:"winrm_insecure" cty:"winrm_insecure"`
 	WinRMUseNTLM              *bool             `mapstructure:"winrm_use_ntlm" cty:"winrm_use_ntlm"`
 
-	Username       string `mapstructure:"username"`
-	Password       string `mapstructure:"password"`
-	Zone           string `mapstructure:"zone"`
-	StorageUUID    string `mapstructure:"storage_uuid"`
-	TemplatePrefix string `mapstructure:"template_prefix"`
+	Username       string `mapstructure:"username" cty:"username"`
+	Password       string `mapstructure:"password" cty:"password"`
+	Zone           string `mapstructure:"zone" cty:"zone"`
+	StorageUUID    string `mapstructure:"storage_uuid" cty:"storage_uuid"`
+	TemplatePrefix string `mapstructure:"template_prefix" cty:"template_prefix"`
 
 	// Optional configuration values
-	StorageSize             int    `mapstructure:"storage_size"`
-	RawStateTimeoutDuration string `mapstructure:"state_timeout_duration"`
+	StorageSize             int    `mapstructure:"storage_size" cty:"storage_size"`
+	RawStateTimeoutDuration string `mapstructure:"state_timeout_duration" cty:"state_timeout_duration"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
