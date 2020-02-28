@@ -114,8 +114,3 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 
 	return artifact, nil
 }
-
-// Cancel is called when the build is cancelled
-func (b *Builder) Cancel() {
-	fmt.Println("Cancelling the builder ...")
-}
