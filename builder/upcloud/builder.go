@@ -21,7 +21,7 @@ type Builder struct {
 }
 
 // Prepare processes the build configuration parameters and validates the configuration
-func (self *Builder) Prepare(raws ...interface{}) ([]string, []string, err error) {
+func (self *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 	// Parse and create the configuration
 	self.config, err = NewConfig(raws...)
 
