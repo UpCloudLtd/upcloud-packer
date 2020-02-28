@@ -1,12 +1,13 @@
 package upcloud
 
 import (
+	"context"
 	"fmt"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/request"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/service"
-	"github.com/mitchellh/multistep"
-	"github.com/mitchellh/packer/packer"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud/request"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud/service"
+	"github.com/hashicorp/packer/helper/multistep"
+	"github.com/hashicorp/packer/packer"
 	"github.com/pkg/errors"
 	"time"
 )
@@ -16,7 +17,7 @@ type StepTemplatizeStorage struct {
 }
 
 // Run runs the actual step
-func (s *StepTemplatizeStorage) Run(state multistep.StateBag) multistep.StepAction {
+func (s *StepTemplatizeStorage) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	// Store a success indicator in the state
 	state.Put("step_templatize_storage_success", false)
 

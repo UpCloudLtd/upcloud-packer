@@ -1,12 +1,13 @@
 package upcloud
 
 import (
+	"context"
 	"fmt"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/request"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/service"
-	"github.com/mitchellh/multistep"
-	"github.com/mitchellh/packer/packer"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud/request"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud/service"
+	"github.com/hashicorp/packer/helper/multistep"
+	"github.com/hashicorp/packer/packer"
 	"time"
 )
 
@@ -15,7 +16,7 @@ type StepCreateServer struct {
 }
 
 // Run performs the actual step
-func (s *StepCreateServer) Run(state multistep.StateBag) multistep.StepAction {
+func (s *StepCreateServer) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	// Extract state
 	ui := state.Get("ui").(packer.Ui)
 	service := state.Get("service").(service.Service)

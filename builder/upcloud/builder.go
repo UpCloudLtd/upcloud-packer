@@ -1,13 +1,15 @@
 package upcloud
 
 import (
+	"context"
 	"fmt"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/request"
-	"github.com/mitchellh/multistep"
-	"github.com/mitchellh/packer/common"
-	"github.com/mitchellh/packer/helper/communicator"
-	"github.com/mitchellh/packer/packer"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud/request"
+	"github.com/hashicorp/hcl/v2/hcldec"
+	"github.com/hashicorp/packer/common"
+	"github.com/hashicorp/packer/helper/communicator"
+	"github.com/hashicorp/packer/helper/multistep"
+	"github.com/hashicorp/packer/packer"
 	"log"
 )
 
@@ -20,8 +22,13 @@ type Builder struct {
 	runner multistep.Runner
 }
 
+func (self *Builder) ConfigSpec() hcldec.ObjectSpec {
+	return self.config.FlatMapstructure().HCL2Spec()
+}
+
 // Prepare processes the build configuration parameters and validates the configuration
 func (self *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
+	var err error
 	// Parse and create the configuration
 	self.config, err = NewConfig(raws...)
 
@@ -53,7 +60,7 @@ func (self *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 }
 
 // Run executes the actual build steps
-func (self *Builder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (packer.Artifact, error) {
+func (self *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
 	// Create the service
 	service := self.config.GetService()
 
@@ -82,7 +89,7 @@ func (self *Builder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (pa
 
 	// Create the runner which will run the steps we just build
 	self.runner = &multistep.BasicRunner{Steps: steps}
-	self.runner.Run(state)
+	self.runner.Run(ctx, state)
 
 	if rawErr, ok := state.GetOk("error"); ok {
 		return nil, rawErr.(error)
@@ -113,8 +120,6 @@ func (self *Builder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (pa
 func (self *Builder) Cancel() {
 	if self.runner != nil {
 		log.Println("Cancelling the step runner ...")
-		self.runner.Cancel()
 	}
-
 	fmt.Println("Cancelling the builder ...")
 }

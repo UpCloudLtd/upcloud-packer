@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/UpCloudLtd/upcloud-packer/builder/upcloud"
-	"github.com/mitchellh/packer/packer/plugin"
+	"github.com/hashicorp/packer/packer/plugin"
 )
 
 func main() {
@@ -10,6 +10,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	server.RegisterBuilder(new(upcloud.Builder))
+	if err := server.RegisterBuilder(new(upcloud.Builder)); err != nil {
+		panic(err)
+	}
 	server.Serve()
 }

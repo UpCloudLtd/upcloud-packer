@@ -2,10 +2,10 @@ package upcloud
 
 import (
 	"fmt"
+	"github.com/hashicorp/packer/helper/multistep"
 	"golang.org/x/crypto/ssh"
 
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud"
-	"github.com/mitchellh/multistep"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
 )
 
 // sshHostCallback retrieves the server details from the state and returns the public IPv4 address of the server
