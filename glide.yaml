@@ -9,7 +9,7 @@ import:
   - upcloud/service 
 - package: github.com/mitchellh/multistep 
 - package: github.com/hashicorp/packer 
-  version: ~1.0.0
+  version: ~1.5.4
   subpackages: 
   - common 
   - helper/communicator 
