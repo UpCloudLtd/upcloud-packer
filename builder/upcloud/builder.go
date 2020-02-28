@@ -47,13 +47,12 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 	storageDetails, err := service.GetStorageDetails(&request.GetStorageDetailsRequest{
 		UUID: b.config.StorageUUID,
 	})
-
-	if err == nil && storageDetails.Type != upcloud.StorageTypeTemplate {
-		err = fmt.Errorf("The specified storage UUID is of invalid type \"%s\"", storageDetails.Type)
-	}
-
 	if err != nil {
 		return nil, nil, err
+	}
+
+	if storageDetails.Type != upcloud.StorageTypeTemplate {
+		err = fmt.Errorf("The specified storage UUID is of invalid type \"%s\"", storageDetails.Type)
 	}
 
 	return nil, nil, nil
