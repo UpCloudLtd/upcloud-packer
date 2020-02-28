@@ -16,7 +16,7 @@ imports:
 - name: github.com/hashicorp/go-version
   version: 7e3c02b30806fa5779d3bdfc152ce4c6f40e7b38
 - name: github.com/hashicorp/packer
-  version: e3d65a193e96c7b228589fc9699e39998ec12e4e
+  version: 30aa6a0cb45e38638479a9d9c1889e9086b686c4
   subpackages:
   - common
   - helper/communicator
