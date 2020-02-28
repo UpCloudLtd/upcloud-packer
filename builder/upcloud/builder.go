@@ -21,19 +21,19 @@ type Builder struct {
 }
 
 // Prepare processes the build configuration parameters and validates the configuration
-func (self *Builder) Prepare(raws ...interface{}) (parms []string, err error) {
+func (self *Builder) Prepare(raws ...interface{}) ([]string, []string, err error) {
 	// Parse and create the configuration
 	self.config, err = NewConfig(raws...)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Check that the client/service is usable
 	service := self.config.GetService()
 
 	if _, err := service.GetAccount(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Check that the specified storage device is a template
@@ -46,10 +46,10 @@ func (self *Builder) Prepare(raws ...interface{}) (parms []string, err error) {
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return nil, nil
+	return nil, nil, nil
 }
 
 // Run executes the actual build steps
