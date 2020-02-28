@@ -19,7 +19,7 @@ type StepCreateServer struct {
 func (s *StepCreateServer) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
 	// Extract state
 	ui := state.Get("ui").(packer.Ui)
-	svc := state.Get("svc").(service.Service)
+	svc := state.Get("service").(service.Service)
 	config := state.Get("config").(Config)
 
 	// Create the request
@@ -108,7 +108,7 @@ func (s *StepCreateServer) Cleanup(state multistep.StateBag) {
 
 	ui := state.Get("ui").(packer.Ui)
 	config := state.Get("config").(Config)
-	svc := state.Get("svc").(service.Service)
+	svc := state.Get("service").(service.Service)
 
 	// Ensure the instance is not in maintenance state
 	ui.Say(fmt.Sprintf("Waiting for server \"%s\" to exit the \"maintenance\" state ...", serverDetails.Title))

@@ -23,7 +23,7 @@ func (s *StepTemplatizeStorage) Run(ctx context.Context, state multistep.StateBa
 
 	// Extract state
 	ui := state.Get("ui").(packer.Ui)
-	svc := state.Get("svc").(service.Service)
+	svc := state.Get("service").(service.Service)
 	config := state.Get("config").(Config)
 	serverDetails := state.Get("server_details").(*upcloud.ServerDetails)
 
