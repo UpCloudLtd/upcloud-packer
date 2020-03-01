@@ -19,7 +19,6 @@ const BuilderId = "upcloudltd.upcloud"
 // Builder represents a Packer Builder.
 type Builder struct {
 	config *Config
-	runner multistep.Runner
 }
 
 func (b *Builder) ConfigSpec() hcldec.ObjectSpec {
@@ -87,8 +86,8 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	}
 
 	// Create the runner which will run the steps we just build
-	b.runner = &multistep.BasicRunner{Steps: steps}
-	b.runner.Run(ctx, state)
+	runner := &multistep.BasicRunner{Steps: steps}
+	runner.Run(ctx, state)
 
 	if rawErr, ok := state.GetOk("error"); ok {
 		return nil, rawErr.(error)
