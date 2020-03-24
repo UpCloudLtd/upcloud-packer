@@ -1,15 +1,16 @@
 package upcloud
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"github.com/hashicorp/packer/helper/multistep"
 	"os"
 
-	"github.com/mitchellh/multistep"
-	"github.com/mitchellh/packer/packer"
+	"github.com/hashicorp/packer/packer"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -20,7 +21,7 @@ type StepCreateSSHKey struct {
 }
 
 // Run executes the Packer build step that generates SSH key pairs.
-func (s *StepCreateSSHKey) Run(state multistep.StateBag) multistep.StepAction {
+func (s *StepCreateSSHKey) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	// Extract state
 	ui := state.Get("ui").(packer.Ui)
 

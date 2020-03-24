@@ -14,16 +14,15 @@ You can download the pre-built binaries of the plugin from the [GitHub releases 
 
 #### Prerequisites
 
-You will need to have the [Go](https://golang.org/) programming language, the [Glide](https://github.com/Masterminds/glide) package manager, and the [Packer](https://www.packer.io/) itself installed. You can find instructions to install each of the prerequisites at their documentation.
+You will need to have the [Go](https://golang.org/) programming language and the [Packer](https://www.packer.io/) itself installed. You can find instructions to install each of the prerequisites at their documentation.
 
 #### Building and installing
 
 Run the following commands to download and install the plugin from the source.
 
 ```
-go get github.com/UpCloudLtd/upcloud-packer
-cd $GOPATH/src/github.com/UpCloudLtd/upcloud-packer
-glide install --strip-vendor
+git clone https://github.com/UpCloudLtd/upcloud-packer
+cd upcloud-packer
 go build
 cp upcloud-packer ~/.packer.d/plugins/packer-builder-upcloud
 ```

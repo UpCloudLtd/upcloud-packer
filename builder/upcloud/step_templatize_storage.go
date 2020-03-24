@@ -1,13 +1,14 @@
 package upcloud
 
 import (
+	"context"
+	"errors"
 	"fmt"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/request"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/service"
-	"github.com/mitchellh/multistep"
-	"github.com/mitchellh/packer/packer"
-	"github.com/pkg/errors"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud/request"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud/service"
+	"github.com/hashicorp/packer/helper/multistep"
+	"github.com/hashicorp/packer/packer"
 	"time"
 )
 
@@ -16,19 +17,19 @@ type StepTemplatizeStorage struct {
 }
 
 // Run runs the actual step
-func (s *StepTemplatizeStorage) Run(state multistep.StateBag) multistep.StepAction {
+func (s *StepTemplatizeStorage) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	// Store a success indicator in the state
 	state.Put("step_templatize_storage_success", false)
 
 	// Extract state
 	ui := state.Get("ui").(packer.Ui)
-	service := state.Get("service").(service.Service)
+	svc := state.Get("service").(service.Service)
 	config := state.Get("config").(Config)
 	serverDetails := state.Get("server_details").(*upcloud.ServerDetails)
 
 	// Stop the server and wait until it has stopped
 	ui.Say(fmt.Sprintf("Stopping server \"%s\" ...", serverDetails.Title))
-	serverDetails, err := service.StopServer(&request.StopServerRequest{
+	serverDetails, err := svc.StopServer(&request.StopServerRequest{
 		UUID: serverDetails.UUID,
 	})
 
@@ -37,7 +38,7 @@ func (s *StepTemplatizeStorage) Run(state multistep.StateBag) multistep.StepActi
 	}
 
 	ui.Say(fmt.Sprintf("Waiting for server \"%s\" to enter the \"stopped\" state ...", serverDetails.Title))
-	serverDetails, err = service.WaitForServerState(&request.WaitForServerStateRequest{
+	serverDetails, err = svc.WaitForServerState(&request.WaitForServerStateRequest{
 		UUID:         serverDetails.UUID,
 		DesiredState: upcloud.ServerStateStopped,
 		Timeout:      config.StateTimeoutDuration,
@@ -60,7 +61,7 @@ func (s *StepTemplatizeStorage) Run(state multistep.StateBag) multistep.StepActi
 				prefix = config.TemplatePrefix
 			}
 
-			storageDetails, err := service.TemplatizeStorage(&request.TemplatizeStorageRequest{
+			storageDetails, err := svc.TemplatizeStorage(&request.TemplatizeStorageRequest{
 				UUID:  storage.UUID,
 				Title: fmt.Sprintf("%s-template-%d", prefix, time.Now().Unix()),
 			})
@@ -71,7 +72,7 @@ func (s *StepTemplatizeStorage) Run(state multistep.StateBag) multistep.StepActi
 
 			// Wait for the newly templatized storage to enter the "online" state
 			ui.Say(fmt.Sprintf("Waiting for storage \"%s\" to enter the \"online\" state", storageDetails.Title))
-			storageDetails, err = service.WaitForStorageState(&request.WaitForStorageStateRequest{
+			storageDetails, err = svc.WaitForStorageState(&request.WaitForStorageStateRequest{
 				UUID:         storageDetails.UUID,
 				DesiredState: upcloud.StorageStateOnline,
 				Timeout:      config.StateTimeoutDuration,

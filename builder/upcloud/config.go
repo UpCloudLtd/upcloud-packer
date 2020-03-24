@@ -3,13 +3,13 @@ package upcloud
 import (
 	"errors"
 	"fmt"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/client"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/service"
-	"github.com/mitchellh/packer/common"
-	"github.com/mitchellh/packer/helper/communicator"
-	"github.com/mitchellh/packer/helper/config"
-	"github.com/mitchellh/packer/packer"
-	"github.com/mitchellh/packer/template/interpolate"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud/client"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud/service"
+	"github.com/hashicorp/packer/common"
+	"github.com/hashicorp/packer/helper/communicator"
+	"github.com/hashicorp/packer/helper/config"
+	"github.com/hashicorp/packer/packer"
+	"github.com/hashicorp/packer/template/interpolate"
 	"time"
 )
 
@@ -35,8 +35,8 @@ type Config struct {
 
 // GetService returns a service object using the credentials specified in the configuration
 func (c *Config) GetService() *service.Service {
-	client := client.New(c.Username, c.Password)
-	return service.New(client)
+	t := client.New(c.Username, c.Password)
+	return service.New(t)
 }
 
 // NewConfig creates a new configuration, setting default values and validating it along the way
@@ -96,7 +96,7 @@ func NewConfig(raws ...interface{}) (*Config, error) {
 	c.StateTimeoutDuration = stateTimeout
 
 	if len(errs.Errors) > 0 {
-		return nil, errors.New(errs.Error())
+		return nil, errs
 	}
 
 	return c, nil

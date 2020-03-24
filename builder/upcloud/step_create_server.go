@@ -1,12 +1,13 @@
 package upcloud
 
 import (
+	"context"
 	"fmt"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/request"
-	"github.com/UpCloudLtd/upcloud-go-sdk/upcloud/service"
-	"github.com/mitchellh/multistep"
-	"github.com/mitchellh/packer/packer"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud/request"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud/service"
+	"github.com/hashicorp/packer/helper/multistep"
+	"github.com/hashicorp/packer/packer"
 	"time"
 )
 
@@ -15,10 +16,10 @@ type StepCreateServer struct {
 }
 
 // Run performs the actual step
-func (s *StepCreateServer) Run(state multistep.StateBag) multistep.StepAction {
+func (s *StepCreateServer) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
 	// Extract state
 	ui := state.Get("ui").(packer.Ui)
-	service := state.Get("service").(service.Service)
+	svc := state.Get("service").(service.Service)
 	config := state.Get("config").(Config)
 
 	// Create the request
@@ -67,7 +68,7 @@ func (s *StepCreateServer) Run(state multistep.StateBag) multistep.StepAction {
 	// Create the server
 	ui.Say(fmt.Sprintf("Creating server \"%s\" ...", createServerRequest.Title))
 
-	serverDetails, err := service.CreateServer(&createServerRequest)
+	serverDetails, err := svc.CreateServer(&createServerRequest)
 	if err != nil {
 		return handleError(fmt.Errorf("Error creating server instance: %s", err), state)
 	}
@@ -76,14 +77,15 @@ func (s *StepCreateServer) Run(state multistep.StateBag) multistep.StepAction {
 	state.Put("server_details", serverDetails)
 
 	ui.Say(fmt.Sprintf("Waiting for server \"%s\" to enter the \"started\" state ...", serverDetails.Title))
-	serverDetails, err = service.WaitForServerState(&request.WaitForServerStateRequest{
+	serverDetails, err = svc.WaitForServerState(&request.WaitForServerStateRequest{
 		UUID:         serverDetails.UUID,
 		DesiredState: upcloud.ServerStateStarted,
 		Timeout:      config.StateTimeoutDuration,
 	})
 
 	if err != nil {
-		return handleError(fmt.Errorf("Error while waiting for server \"%s\" to enter the \"started\" state: %s", serverDetails.Title, err), state)
+		return handleError(fmt.Errorf("Error while waiting for server \"%s\" to enter the \"started\" state: %s",
+			state.Get("server_details").(*upcloud.ServerDetails).Title, err), state)
 	}
 
 	// Update the state
@@ -106,11 +108,11 @@ func (s *StepCreateServer) Cleanup(state multistep.StateBag) {
 
 	ui := state.Get("ui").(packer.Ui)
 	config := state.Get("config").(Config)
-	service := state.Get("service").(service.Service)
+	svc := state.Get("service").(service.Service)
 
 	// Ensure the instance is not in maintenance state
 	ui.Say(fmt.Sprintf("Waiting for server \"%s\" to exit the \"maintenance\" state ...", serverDetails.Title))
-	_, err := service.WaitForServerState(&request.WaitForServerStateRequest{
+	_, err := svc.WaitForServerState(&request.WaitForServerStateRequest{
 		UUID:           serverDetails.UUID,
 		UndesiredState: upcloud.ServerStateMaintenance,
 		Timeout:        config.StateTimeoutDuration,
@@ -122,7 +124,7 @@ func (s *StepCreateServer) Cleanup(state multistep.StateBag) {
 	}
 
 	// Stop the server if it hasn't been stopped yet
-	newServerDetails, err := service.GetServerDetails(&request.GetServerDetailsRequest{
+	newServerDetails, err := svc.GetServerDetails(&request.GetServerDetailsRequest{
 		UUID: serverDetails.UUID,
 	})
 
@@ -133,7 +135,7 @@ func (s *StepCreateServer) Cleanup(state multistep.StateBag) {
 
 	if newServerDetails.State != upcloud.ServerStateStopped {
 		ui.Say(fmt.Sprintf("Stopping server \"%s\" ...", serverDetails.Title))
-		_, err = service.StopServer(&request.StopServerRequest{
+		_, err = svc.StopServer(&request.StopServerRequest{
 			UUID: serverDetails.UUID,
 		})
 
@@ -144,7 +146,7 @@ func (s *StepCreateServer) Cleanup(state multistep.StateBag) {
 
 		// Wait for the server to stop
 		ui.Say(fmt.Sprintf("Waiting for server \"%s\" to enter the \"stopped\" state ...", serverDetails.Title))
-		_, err = service.WaitForServerState(&request.WaitForServerStateRequest{
+		_, err = svc.WaitForServerState(&request.WaitForServerStateRequest{
 			UUID:         serverDetails.UUID,
 			DesiredState: upcloud.ServerStateStopped,
 			Timeout:      config.StateTimeoutDuration,
@@ -170,7 +172,7 @@ func (s *StepCreateServer) Cleanup(state multistep.StateBag) {
 
 	// Delete the server
 	ui.Say(fmt.Sprintf("Deleting server \"%s\" ...", serverDetails.Title))
-	err = service.DeleteServer(&request.DeleteServerRequest{
+	err = svc.DeleteServer(&request.DeleteServerRequest{
 		UUID: serverDetails.UUID,
 	})
 
@@ -181,7 +183,7 @@ func (s *StepCreateServer) Cleanup(state multistep.StateBag) {
 	// Delete the disk
 	if storageUUID != "" {
 		ui.Say(fmt.Sprintf("Deleting disk \"%s\" ...", storageTitle))
-		err = service.DeleteStorage(&request.DeleteStorageRequest{
+		err = svc.DeleteStorage(&request.DeleteStorageRequest{
 			UUID: storageUUID,
 		})
 
