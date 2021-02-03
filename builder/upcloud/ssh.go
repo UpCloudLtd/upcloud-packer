@@ -2,10 +2,9 @@ package upcloud
 
 import (
 	"fmt"
-	"github.com/hashicorp/packer/helper/multistep"
-	"golang.org/x/crypto/ssh"
 
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
+	"github.com/hashicorp/packer-plugin-sdk/multistep"
 )
 
 // sshHostCallback retrieves the server details from the state and returns the public IPv4 address of the server
@@ -19,23 +18,4 @@ func sshHostCallback(state multistep.StateBag) (string, error) {
 	}
 
 	return "", fmt.Errorf("Unable to find the public IPv4 address of the server")
-}
-
-// sshConfigCallback
-func sshConfigCallback(state multistep.StateBag) (*ssh.ClientConfig, error) {
-	config := state.Get("config").(Config)
-	privateKey := state.Get("ssh_private_key").(string)
-
-	signer, err := ssh.ParsePrivateKey([]byte(privateKey))
-	if err != nil {
-		return nil, fmt.Errorf("Error creating SSH config: %s", err)
-	}
-
-	return &ssh.ClientConfig{
-		User: config.Comm.SSHUsername,
-		Auth: []ssh.AuthMethod{
-			ssh.PublicKeys(signer),
-		},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-	}, nil
 }

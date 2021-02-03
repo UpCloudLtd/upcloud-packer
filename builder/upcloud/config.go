@@ -2,21 +2,18 @@ package upcloud
 
 import (
 	"errors"
-	"fmt"
-	"github.com/UpCloudLtd/upcloud-go-api/upcloud/client"
-	"github.com/UpCloudLtd/upcloud-go-api/upcloud/service"
-	"github.com/hashicorp/packer/common"
-	"github.com/hashicorp/packer/helper/communicator"
-	"github.com/hashicorp/packer/helper/config"
-	"github.com/hashicorp/packer/packer"
-	"github.com/hashicorp/packer/template/interpolate"
 	"time"
+
+	"github.com/hashicorp/packer-plugin-sdk/common"
+	"github.com/hashicorp/packer-plugin-sdk/communicator"
+	"github.com/hashicorp/packer-plugin-sdk/packer"
+	"github.com/hashicorp/packer-plugin-sdk/template/config"
+	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
 )
 
-// Config represents the configuration for this builder
 type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
-	Comm                communicator.Config `mapstructure:",squash"`
+	Communicator        communicator.Config `mapstructure:",squash"`
 
 	// Required configuration values
 	Username       string `mapstructure:"username"`
@@ -33,16 +30,7 @@ type Config struct {
 	ctx                  interpolate.Context
 }
 
-// GetService returns a service object using the credentials specified in the configuration
-func (c *Config) GetService() *service.Service {
-	t := client.New(c.Username, c.Password)
-	return service.New(t)
-}
-
-// NewConfig creates a new configuration, setting default values and validating it along the way
-func NewConfig(raws ...interface{}) (*Config, error) {
-	c := new(Config)
-
+func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 	err := config.Decode(c, &config.DecodeOpts{
 		Interpolate:        true,
 		InterpolateContext: &c.ctx,
@@ -51,23 +39,15 @@ func NewConfig(raws ...interface{}) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	// defaults
+	// later
 
-	// Assign default values if possible
-	c.Comm.SSHUsername = "root"
-
-	if c.StorageSize == 0 {
-		c.StorageSize = 30
-	}
-
-	if c.RawStateTimeoutDuration == "" {
-		c.RawStateTimeoutDuration = "5m"
-	}
-
-	// Validation
+	// validate
 	var errs *packer.MultiError
-	errs = packer.MultiErrorAppend(errs, c.Comm.Prepare(&c.ctx)...)
+	if es := c.Communicator.Prepare(&c.ctx); len(es) > 0 {
+		errs = packer.MultiErrorAppend(errs, es...)
+	}
 
-	// Check for required configurations that will display errors if not set
 	if c.Username == "" {
 		errs = packer.MultiErrorAppend(
 			errs, errors.New("\"username\" must be specified"))
@@ -87,17 +67,5 @@ func NewConfig(raws ...interface{}) (*Config, error) {
 		errs = packer.MultiErrorAppend(
 			errs, errors.New("\"storage_uuid\" must be specified"))
 	}
-
-	stateTimeout, err := time.ParseDuration(c.RawStateTimeoutDuration)
-	if err != nil {
-		errs = packer.MultiErrorAppend(
-			errs, fmt.Errorf("Failed to parse state_timeout_duration: %s", err))
-	}
-	c.StateTimeoutDuration = stateTimeout
-
-	if len(errs.Errors) > 0 {
-		return nil, errs
-	}
-
-	return c, nil
+	return nil, nil
 }
