@@ -45,6 +45,10 @@ func (s *StepCreateSSHKey) Run(_ context.Context, state multistep.StateBag) mult
 		return StepHaltWithError(state, fmt.Errorf("Error creating public ssh key: %s", err))
 	}
 
+	// Remember some state for the future
+	pubSSHFormat := string(ssh.MarshalAuthorizedKey(pub))
+	state.Put("ssh_key_public", pubSSHFormat)
+
 	// Set the private key in the config for later
 	config.Communicator.SSHPrivateKey = pem.EncodeToMemory(&privBlk)
 	config.Communicator.SSHPublicKey = ssh.MarshalAuthorizedKey(pub)

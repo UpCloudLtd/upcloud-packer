@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud/service"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
@@ -16,6 +17,7 @@ const BuilderId = "upcloud.builder"
 type Builder struct {
 	config Config
 	runner multistep.Runner
+	api    *service.Service
 }
 
 func (b *Builder) ConfigSpec() hcldec.ObjectSpec { return b.config.FlatMapstructure().HCL2Spec() }
@@ -37,12 +39,24 @@ func (b *Builder) Prepare(raws ...interface{}) (generatedVars []string, warnings
 }
 
 func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook) (packersdk.Artifact, error) {
+	// Setup the state bag and initial state for the steps
+	b.api = getApiService(&b.config)
+
+	state := new(multistep.BasicStateBag)
+	state.Put("config", &b.config)
+	state.Put("hook", hook)
+	state.Put("ui", ui)
+	state.Put("api", b.api)
+
+	// Build the steps
 	steps := []multistep.Step{
 		&StepCreateSSHKey{
 			Debug:        b.config.PackerDebug,
 			DebugKeyPath: fmt.Sprintf("ssh_key-%s.pem", b.config.PackerBuildName),
 		},
-		// &stepCreateServer{},
+		&StepCreateInstance{
+			Debug: b.config.PackerDebug,
+		},
 		&communicator.StepConnect{
 			Config:    &b.config.Communicator,
 			Host:      sshHostCallback,
@@ -52,18 +66,9 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		&commonsteps.StepCleanupTempKeys{
 			Comm: &b.config.Communicator,
 		},
-		// &stepShutdownServer{},
+		// &StepTeardownInstance{},
+		// &StepCreateImage{},
 	}
-
-	steps = append(steps,
-		new(commonsteps.StepProvision),
-	)
-
-	// Setup the state bag and initial state for the steps
-	state := new(multistep.BasicStateBag)
-	state.Put("config", &b.config)
-	state.Put("hook", hook)
-	state.Put("ui", ui)
 
 	// Run
 	b.runner = commonsteps.NewRunner(steps, b.config.PackerConfig, ui)
