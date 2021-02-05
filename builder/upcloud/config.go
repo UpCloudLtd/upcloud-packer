@@ -13,7 +13,7 @@ import (
 
 type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
-	Communicator        communicator.Config `mapstructure:",squash"`
+	Comm                communicator.Config `mapstructure:",squash"`
 
 	// Required configuration values
 	Username       string `mapstructure:"username"`
@@ -44,7 +44,7 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 
 	// validate
 	var errs *packer.MultiError
-	if es := c.Communicator.Prepare(&c.ctx); len(es) > 0 {
+	if es := c.Comm.Prepare(&c.ctx); len(es) > 0 {
 		errs = packer.MultiErrorAppend(errs, es...)
 	}
 
@@ -68,6 +68,6 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 			errs, errors.New("\"storage_uuid\" must be specified"))
 	}
 
-	c.Timeout = 5 * time.Minute
+	c.Timeout = 1 * time.Minute
 	return nil, nil
 }

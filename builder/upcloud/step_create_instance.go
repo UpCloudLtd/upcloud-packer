@@ -14,14 +14,12 @@ import (
 
 type StepCreateInstance struct {
 	Debug bool
-
-	// GeneratedData *packerbuilderdata.GeneratedData
 }
 
 func (s *StepCreateInstance) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	ui := state.Get("ui").(packer.Ui)
-	config := state.Get("config").(Config)
-	api := state.Get("api").(service.Service)
+	config := state.Get("config").(*Config)
+	api := state.Get("api").(*service.Service)
 
 	title := fmt.Sprintf("custom-image-%d", time.Now().Unix())
 	hostname := title
@@ -58,7 +56,7 @@ func (s *StepCreateInstance) Run(ctx context.Context, state multistep.StateBag) 
 							Family: upcloud.IPAddressFamilyIPv4,
 						},
 					},
-					Type: upcloud.IPAddressAccessPrivate,
+					Type: upcloud.IPAddressAccessUtility,
 				},
 				{
 					IPAddresses: []request.CreateServerIPAddress{
@@ -72,7 +70,7 @@ func (s *StepCreateInstance) Run(ctx context.Context, state multistep.StateBag) 
 		},
 		LoginUser: &request.LoginUser{
 			CreatePassword: "no",
-			Username:       config.Communicator.SSHUsername,
+			Username:       config.Comm.SSHUsername,
 			SSHKeys: []string{
 				state.Get("ssh_key_public").(string),
 			},
@@ -122,8 +120,8 @@ func (s *StepCreateInstance) Cleanup(state multistep.StateBag) {
 	title := serverDetails.Title
 
 	ui := state.Get("ui").(packer.Ui)
-	config := state.Get("config").(Config)
-	api := state.Get("api").(service.Service)
+	config := state.Get("config").(*Config)
+	api := state.Get("api").(*service.Service)
 
 	// Ensure the instance is not in maintenance state
 	ui.Say(fmt.Sprintf("Waiting for server %q to exit the 'maintenance' state ...", title))
@@ -197,7 +195,7 @@ func (s *StepCreateInstance) Cleanup(state multistep.StateBag) {
 
 	// Delete the disk
 	if storageUUID != "" {
-		ui.Say(fmt.Sprintf("Deleting disk \"%s\" ...", storageTitle))
+		ui.Say(fmt.Sprintf("Deleting disk %q...", storageTitle))
 		err = api.DeleteStorage(&request.DeleteStorageRequest{
 			UUID: storageUUID,
 		})

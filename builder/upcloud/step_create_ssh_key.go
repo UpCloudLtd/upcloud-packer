@@ -20,7 +20,6 @@ type StepCreateSSHKey struct {
 }
 
 func (s *StepCreateSSHKey) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
-
 	ui := state.Get("ui").(packersdk.Ui)
 	config := state.Get("config").(*Config)
 
@@ -50,13 +49,13 @@ func (s *StepCreateSSHKey) Run(_ context.Context, state multistep.StateBag) mult
 	state.Put("ssh_key_public", pubSSHFormat)
 
 	// Set the private key in the config for later
-	config.Communicator.SSHPrivateKey = pem.EncodeToMemory(&privBlk)
-	config.Communicator.SSHPublicKey = ssh.MarshalAuthorizedKey(pub)
+	config.Comm.SSHPrivateKey = pem.EncodeToMemory(&privBlk)
+	config.Comm.SSHPublicKey = ssh.MarshalAuthorizedKey(pub)
 
 	// If we're in debug mode, output the private key to the working directory.
 	if s.Debug {
-		ui.Message(fmt.Sprintf("Saving key for debug purposes: %s", s.DebugKeyPath))
-		err := ioutil.WriteFile(s.DebugKeyPath, config.Communicator.SSHPrivateKey, 0600)
+		ui.Say(fmt.Sprintf("Saving key for debug purposes: %s", s.DebugKeyPath))
+		err := ioutil.WriteFile(s.DebugKeyPath, config.Comm.SSHPrivateKey, 0600)
 		if err != nil {
 			return StepHaltWithError(state, fmt.Errorf("Error saving debug key: %s", err))
 		}

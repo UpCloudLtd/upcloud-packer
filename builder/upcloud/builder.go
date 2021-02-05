@@ -58,13 +58,13 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			Debug: b.config.PackerDebug,
 		},
 		&communicator.StepConnect{
-			Config:    &b.config.Communicator,
+			Config:    &b.config.Comm,
 			Host:      sshHostCallback,
-			SSHConfig: b.config.Communicator.SSHConfigFunc(),
+			SSHConfig: b.config.Comm.SSHConfigFunc(),
 		},
 		&commonsteps.StepProvision{},
 		&commonsteps.StepCleanupTempKeys{
-			Comm: &b.config.Communicator,
+			Comm: &b.config.Comm,
 		},
 		&StepTeardownInstance{},
 		&StepCreateImage{},

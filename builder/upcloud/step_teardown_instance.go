@@ -19,8 +19,8 @@ func (s *StepTeardownInstance) Run(ctx context.Context, state multistep.StateBag
 
 	// Extract state
 	ui := state.Get("ui").(packer.Ui)
-	api := state.Get("api").(service.Service)
-	config := state.Get("config").(Config)
+	api := state.Get("api").(*service.Service)
+	config := state.Get("config").(*Config)
 	serverDetails := state.Get("server_details").(*upcloud.ServerDetails)
 
 	// Stop the server and wait until it has stopped

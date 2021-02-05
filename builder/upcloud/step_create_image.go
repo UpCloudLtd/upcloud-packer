@@ -23,32 +23,9 @@ func (s *StepCreateImage) Run(ctx context.Context, state multistep.StateBag) mul
 
 	// Extract state
 	ui := state.Get("ui").(packer.Ui)
-	api := state.Get("api").(service.Service)
-	config := state.Get("config").(Config)
+	api := state.Get("api").(*service.Service)
+	config := state.Get("config").(*Config)
 	serverDetails := state.Get("server_details").(*upcloud.ServerDetails)
-
-	// Stop the server and wait until it has stopped
-	ui.Say(fmt.Sprintf("Stopping server \"%s\" ...", serverDetails.Title))
-	serverDetails, err := api.StopServer(&request.StopServerRequest{
-		UUID: serverDetails.UUID,
-	})
-
-	if err != nil {
-		return StepHaltWithError(state, fmt.Errorf("Error teardown server: %s", err))
-	}
-
-	ui.Say(fmt.Sprintf("Waiting for server %q to enter the 'stopped' state...", serverDetails.Title))
-	serverDetails, err = api.WaitForServerState(&request.WaitForServerStateRequest{
-		UUID:         serverDetails.UUID,
-		DesiredState: upcloud.ServerStateStopped,
-		Timeout:      config.Timeout,
-	})
-
-	if err != nil {
-		return StepHaltWithError(state, fmt.Errorf("Error waiting for server: %s", err))
-	}
-
-	ui.Say(fmt.Sprintf("Server %q is now in 'stopped' state", serverDetails.Title))
 
 	// Templatize the first disk device in the server
 	for _, storage := range serverDetails.StorageDevices {
@@ -106,7 +83,7 @@ func (s *StepCreateImage) Cleanup(state multistep.StateBag) {
 	if rawDetails, ok := state.GetOk("storage_details"); ok {
 		storageDetails := rawDetails.(*upcloud.StorageDetails)
 
-		api := state.Get("api").(service.Service)
+		api := state.Get("api").(*service.Service)
 		ui := state.Get("ui").(packer.Ui)
 
 		// Delete the storage device
