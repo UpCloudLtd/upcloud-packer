@@ -93,7 +93,7 @@ func (s *StepCreateInstance) Run(ctx context.Context, state multistep.StateBag) 
 	serverDetails, err = api.WaitForServerState(&request.WaitForServerStateRequest{
 		UUID:         serverDetails.UUID,
 		DesiredState: upcloud.ServerStateStarted,
-		Timeout:      config.StateTimeoutDuration,
+		Timeout:      config.Timeout,
 	})
 
 	if err != nil {
@@ -130,7 +130,7 @@ func (s *StepCreateInstance) Cleanup(state multistep.StateBag) {
 	_, err := api.WaitForServerState(&request.WaitForServerStateRequest{
 		UUID:           uuid,
 		UndesiredState: upcloud.ServerStateMaintenance,
-		Timeout:        config.StateTimeoutDuration,
+		Timeout:        config.Timeout,
 	})
 
 	if err != nil {
@@ -164,7 +164,7 @@ func (s *StepCreateInstance) Cleanup(state multistep.StateBag) {
 		_, err = api.WaitForServerState(&request.WaitForServerStateRequest{
 			UUID:         serverDetails.UUID,
 			DesiredState: upcloud.ServerStateStopped,
-			Timeout:      config.StateTimeoutDuration,
+			Timeout:      config.Timeout,
 		})
 
 		if err != nil {

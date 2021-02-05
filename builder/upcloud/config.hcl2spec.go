@@ -73,8 +73,7 @@ type FlatConfig struct {
 	TemplatePrefix string `mapstructure:"template_prefix" cty:"template_prefix"`
 
 	// Optional configuration values
-	StorageSize             int    `mapstructure:"storage_size" cty:"storage_size"`
-	RawStateTimeoutDuration string `mapstructure:"state_timeout_duration" cty:"state_timeout_duration"`
+	StorageSize int `mapstructure:"storage_size" cty:"storage_size"`
 }
 
 // FlatMapstructure returns a new FlatConfig.

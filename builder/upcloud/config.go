@@ -23,11 +23,10 @@ type Config struct {
 	TemplatePrefix string `mapstructure:"template_prefix"`
 
 	// Optional configuration values
-	StorageSize             int    `mapstructure:"storage_size"`
-	RawStateTimeoutDuration string `mapstructure:"state_timeout_duration"`
+	StorageSize int `mapstructure:"storage_size"`
 
-	StateTimeoutDuration time.Duration
-	ctx                  interpolate.Context
+	Timeout time.Duration
+	ctx     interpolate.Context
 }
 
 func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
@@ -40,6 +39,7 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 		return nil, err
 	}
 	// defaults
+
 	// later
 
 	// validate
@@ -67,5 +67,7 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 		errs = packer.MultiErrorAppend(
 			errs, errors.New("\"storage_uuid\" must be specified"))
 	}
+
+	c.Timeout = 5 * time.Minute
 	return nil, nil
 }
