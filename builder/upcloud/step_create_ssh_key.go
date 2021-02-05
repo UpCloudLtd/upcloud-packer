@@ -14,11 +14,13 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// StepCreateSSHKey represents the step that creates ssh private and public keys
 type StepCreateSSHKey struct {
 	Debug        bool
 	DebugKeyPath string
 }
 
+// Run runs the actual step
 func (s *StepCreateSSHKey) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
 	ui := state.Get("ui").(packersdk.Ui)
 	config := state.Get("config").(*Config)

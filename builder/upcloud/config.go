@@ -38,9 +38,6 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	// defaults
-
-	// later
 
 	// validate
 	var errs *packer.MultiError
@@ -68,6 +65,6 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 			errs, errors.New("\"storage_uuid\" must be specified"))
 	}
 
-	c.Timeout = 1 * time.Minute
+	c.Timeout = 5 * time.Minute
 	return nil, nil
 }
