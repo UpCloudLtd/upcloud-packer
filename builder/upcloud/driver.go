@@ -2,7 +2,6 @@ package upcloud
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud/client"
@@ -119,13 +118,8 @@ func (d *driver) CreateTemplate(serverUuid string) error {
 		return err
 	}
 
-	title := storage.Title
-	if d.config.TemplatePrefix != "" {
-		title = d.config.TemplatePrefix
-	}
-	imageTitle := fmt.Sprintf("%s-template-%d", title, time.Now().Unix())
-
 	// create image
+	imageTitle := fmt.Sprintf("%s-%s", d.config.ImageName, GetNowString())
 	response, err := d.svc.TemplatizeStorage(&request.TemplatizeStorageRequest{
 		UUID:  storage.UUID,
 		Title: imageTitle,
@@ -202,8 +196,8 @@ func (d *driver) getServerStorage(serverUuid string) (*upcloud.ServerStorageDevi
 }
 
 func (d *driver) prepareCreateRequest(sshKeyPublic string) *request.CreateServerRequest {
-	title := fmt.Sprintf("packer-builder-%d", time.Now().Unix())
-	hostname := title
+	title := fmt.Sprintf("packer-%s-%s", d.config.ImageName, GetNowString())
+	hostname := d.config.ImageName
 	titleDisk := fmt.Sprintf("%s-disk1", title)
 
 	return &request.CreateServerRequest{
@@ -216,7 +210,7 @@ func (d *driver) prepareCreateRequest(sshKeyPublic string) *request.CreateServer
 		StorageDevices: []request.CreateServerStorageDevice{
 			{
 				Action:  request.CreateServerStorageDeviceActionClone,
-				Storage: d.config.StorageUUID,
+				Storage: d.config.TemplateUUID,
 				Title:   titleDisk,
 				Size:    d.config.StorageSize,
 				Tier:    upcloud.StorageTierMaxIOPS,

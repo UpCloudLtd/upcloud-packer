@@ -31,8 +31,10 @@ func (b *Builder) Prepare(raws ...interface{}) (generatedVars []string, warnings
 		"Username",
 		"Password",
 		"Zone",
-		"StorageUUID",
-		"TemplatePrefix",
+		"TemplateUUID",
+		"ImageName",
+		"StorageSize",
+		"Timeout",
 	}
 	return buildGeneratedData, nil, nil
 }

@@ -2,6 +2,7 @@ package upcloud
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
@@ -24,4 +25,8 @@ func GetServerIp(details *upcloud.ServerDetails) (string, error) {
 		}
 	}
 	return "", fmt.Errorf("Unable to find the public IPv4 address of the server")
+}
+
+func GetNowString() string {
+	return time.Now().Format("20060102-150405")
 }
