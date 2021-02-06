@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/multistep/commonsteps"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
+	"github.com/hashicorp/packer-plugin-sdk/packerbuilderdata"
 )
 
 const BuilderId = "upcloud.builder"
@@ -28,13 +30,12 @@ func (b *Builder) Prepare(raws ...interface{}) (generatedVars []string, warnings
 	}
 
 	buildGeneratedData := []string{
-		"Username",
-		"Password",
-		"Zone",
+		"ServerUUID",
+		"ServerTitle",
+		"ServerSize",
 		"TemplateUUID",
-		"ImageName",
-		"StorageSize",
-		"Timeout",
+		"TemplateTitle",
+		"TemplateSize",
 	}
 	return buildGeneratedData, nil, nil
 }
@@ -49,13 +50,17 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 	state.Put("ui", ui)
 	state.Put("driver", b.driver)
 
+	generatedData := &packerbuilderdata.GeneratedData{State: state}
+
 	// Build the steps
 	steps := []multistep.Step{
 		&StepCreateSSHKey{
 			Debug:        b.config.PackerDebug,
 			DebugKeyPath: fmt.Sprintf("ssh_key-%s.pem", b.config.PackerBuildName),
 		},
-		&StepCreateServer{},
+		&StepCreateServer{
+			GeneratedData: generatedData,
+		},
 		&communicator.StepConnect{
 			Config:    &b.config.Comm,
 			Host:      sshHostCallback,
@@ -66,7 +71,9 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			Comm: &b.config.Comm,
 		},
 		&StepTeardownServer{},
-		&StepCreateImage{},
+		&StepCreateTemplate{
+			GeneratedData: generatedData,
+		},
 	}
 
 	// Run
@@ -78,9 +85,15 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		return nil, err.(error)
 	}
 
+	template, ok := state.GetOk("template")
+	if !ok {
+		return nil, fmt.Errorf("Failed to find 'template' in state")
+	}
+
 	artifact := &Artifact{
-		// Add the builder generated data to the artifact StateData so that post-processors
-		// can access them.
+		Template:  template.(*upcloud.Storage),
+		config:    &b.config,
+		driver:    b.driver,
 		StateData: map[string]interface{}{"generated_data": state.Get("generated_data")},
 	}
 	return artifact, nil

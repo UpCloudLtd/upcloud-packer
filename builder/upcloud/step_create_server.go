@@ -6,10 +6,13 @@ import (
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
+	"github.com/hashicorp/packer-plugin-sdk/packerbuilderdata"
 )
 
 // StepCreateServer represents the step that creates a server
-type StepCreateServer struct{}
+type StepCreateServer struct {
+	GeneratedData *packerbuilderdata.GeneratedData
+}
 
 // Run runs the actual step
 func (s *StepCreateServer) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
@@ -43,11 +46,15 @@ func (s *StepCreateServer) Run(ctx context.Context, state multistep.StateBag) mu
 		return StepHaltWithError(state, err)
 	}
 
+	ui.Say(fmt.Sprintf("Server %q created and in 'started' state", serverTitle))
+
 	state.Put("server_uuid", serverUuid)
 	state.Put("server_title", serverTitle)
 	state.Put("server_ip", serverIp)
 
-	ui.Say(fmt.Sprintf("Server %q created and in 'started' state", serverTitle))
+	s.GeneratedData.Put("ServerUUID", serverUuid)
+	s.GeneratedData.Put("ServerTitle", serverTitle)
+	s.GeneratedData.Put("ServerSize", serverIp)
 
 	return multistep.ActionContinue
 }

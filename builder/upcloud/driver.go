@@ -15,8 +15,9 @@ type (
 		CreateServer(string, string) (*upcloud.ServerDetails, error)
 		DeleteServer(string) error
 		StopServer(string) error
-		CreateTemplate(string) error
+		CreateTemplate(string) (*upcloud.Storage, error)
 		GetTemplate() (*upcloud.Storage, error)
+		DeleteTemplate(string) error
 	}
 
 	driver struct {
@@ -105,11 +106,11 @@ func (d *driver) StopServer(serverUuid string) error {
 	return nil
 }
 
-func (d *driver) CreateTemplate(serverUuid string) error {
+func (d *driver) CreateTemplate(serverUuid string) (*upcloud.Storage, error) {
 	// get storage details
 	storage, err := d.getServerStorage(serverUuid)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// create image
@@ -119,19 +120,19 @@ func (d *driver) CreateTemplate(serverUuid string) error {
 		Title: imageTitle,
 	})
 	if err != nil {
-		return fmt.Errorf("Error creating image: %s", err)
+		return nil, fmt.Errorf("Error creating image: %s", err)
 	}
 
 	// wait for online state
-	_, err = d.svc.WaitForStorageState(&request.WaitForStorageStateRequest{
+	template, err := d.svc.WaitForStorageState(&request.WaitForStorageStateRequest{
 		UUID:         response.UUID,
 		DesiredState: upcloud.StorageStateOnline,
 		Timeout:      d.config.Timeout,
 	})
 	if err != nil {
-		return fmt.Errorf("Error while waiting for storage to change state to 'online': %s", err)
+		return nil, fmt.Errorf("Error while waiting for storage to change state to 'online': %s", err)
 	}
-	return nil
+	return &template.Storage, nil
 }
 
 func (d *driver) GetTemplate() (*upcloud.Storage, error) {
@@ -157,11 +158,16 @@ func (d *driver) GetTemplate() (*upcloud.Storage, error) {
 	return nil, fmt.Errorf("Error retrieving template")
 }
 
-func (d *driver) getTemplateByUuid(templateUuid string) (*upcloud.Storage, error) {
-	request := &request.GetStorageDetailsRequest{
+func (d *driver) DeleteTemplate(templateUuid string) error {
+	return d.svc.DeleteStorage(&request.DeleteStorageRequest{
 		UUID: templateUuid,
-	}
-	response, err := d.svc.GetStorageDetails(request)
+	})
+}
+
+func (d *driver) getTemplateByUuid(templateUuid string) (*upcloud.Storage, error) {
+	response, err := d.svc.GetStorageDetails(&request.GetStorageDetailsRequest{
+		UUID: templateUuid,
+	})
 
 	if err != nil {
 		return nil, fmt.Errorf("Error fetching templates: %s", err)
@@ -171,10 +177,9 @@ func (d *driver) getTemplateByUuid(templateUuid string) (*upcloud.Storage, error
 }
 
 func (d *driver) getTemplateByName(templateName string) (*upcloud.Storage, error) {
-	request := &request.GetStoragesRequest{
+	response, err := d.svc.GetStorages(&request.GetStoragesRequest{
 		Type: upcloud.StorageTypeTemplate,
-	}
-	response, err := d.svc.GetStorages(request)
+	})
 
 	if err != nil {
 		return nil, fmt.Errorf("Error fetching templates: %s", err)
