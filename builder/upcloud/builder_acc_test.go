@@ -33,11 +33,11 @@ func TestBuilderAcc_backwardCompatibility(t *testing.T) {
 }
 
 func testAccPreCheck(t *testing.T) {
-	if v := os.Getenv("UPCLOUD_USERNAME"); v == "" {
-		t.Fatal("UPCLOUD_USERNAME must be set for acceptance tests")
+	if v := os.Getenv("UPCLOUD_API_USER"); v == "" {
+		t.Fatal("UPCLOUD_API_USER must be set for acceptance tests")
 	}
-	if v := os.Getenv("UPCLOUD_PASSWORD"); v == "" {
-		t.Fatal("UPCLOUD_PASSWORD must be set for acceptance tests")
+	if v := os.Getenv("UPCLOUD_API_PASSWORD"); v == "" {
+		t.Fatal("UPCLOUD_API_PASSWORD must be set for acceptance tests")
 	}
 }
 

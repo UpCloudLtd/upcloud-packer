@@ -105,12 +105,12 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 
 // get params from environment
 func (c *Config) setEnv() {
-	username := os.Getenv("UPCLOUD_USERNAME")
+	username := os.Getenv("UPCLOUD_API_USER")
 	if username != "" && c.Username == "" {
 		c.Username = username
 	}
 
-	password := os.Getenv("UPCLOUD_PASSWORD")
+	password := os.Getenv("UPCLOUD_API_PASSWORD")
 	if password != "" && c.Password == "" {
 		c.Password = password
 	}
