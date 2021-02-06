@@ -26,13 +26,14 @@ type Config struct {
 	Password     string `mapstructure:"password"`
 	Zone         string `mapstructure:"zone"`
 	TemplateUUID string `mapstructure:"template_uuid"`
+	TemplateName string `mapstructure:"template_name"`
 
 	// Optional configuration values
 	ImageName   string        `mapstructure:"image_name"`
 	StorageSize int           `mapstructure:"storage_size"`
 	Timeout     time.Duration `mapstructure:"timeout"`
 
-	// deprecated, leaved for backward compatibility
+	// deprecated, left for backward compatibility
 	StorageUUID    string `mapstructure:"storage_uuid"`
 	TemplatePrefix string `mapstructure:"template_prefix"`
 
@@ -75,11 +76,10 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 		)
 	}
 
-	if c.TemplateUUID == "" {
+	if c.TemplateUUID == "" && c.TemplateName == "" {
 		errs = packer.MultiErrorAppend(
-			errs, errors.New("'template_uuid' must be specified"),
+			errs, errors.New("'template_uuid' or `template_name` must be specified"),
 		)
-
 	}
 
 	if errs != nil && len(errs.Errors) > 0 {

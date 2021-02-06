@@ -71,12 +71,13 @@ type FlatConfig struct {
 	Password                  *string           `mapstructure:"password" cty:"password"`
 	Zone                      *string           `mapstructure:"zone" cty:"zone"`
 	TemplateUUID              *string           `mapstructure:"template_uuid" cty:"template_uuid"`
+	TemplateName              *string           `mapstructure:"template_name" cty:"template_name"`
 	ImageName                 *string           `mapstructure:"image_name" cty:"image_name"`
 	StorageSize               *int              `mapstructure:"storage_size" cty:"storage_size"`
 	Timeout                   *time.Duration    `mapstructure:"timeout" cty:"timeout"`
-	// deprecated, leaved for backward compatibility
-	StorageUUID    string `mapstructure:"storage_uuid" cty:"storage_uuid"`
-	TemplatePrefix string `mapstructure:"template_prefix" cty:"template_prefix"`
+	// deprecated, left for backward compatibility
+	StorageUUID    *string `mapstructure:"storage_uuid" cty:"storage_uuid"`
+	TemplatePrefix *string `mapstructure:"template_prefix" cty:"template_prefix"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -151,12 +152,13 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"username":                     &hcldec.AttrSpec{Name: "username", Type: cty.String, Required: true},
 		"password":                     &hcldec.AttrSpec{Name: "password", Type: cty.String, Required: true},
 		"zone":                         &hcldec.AttrSpec{Name: "zone", Type: cty.String, Required: true},
-		"template_uuid":                &hcldec.AttrSpec{Name: "template_uuid", Type: cty.String, Required: true},
+		"template_uuid":                &hcldec.AttrSpec{Name: "template_uuid", Type: cty.String, Required: false},
+		"template_name":                &hcldec.AttrSpec{Name: "template_name", Type: cty.String, Required: false},
 		"image_name":                   &hcldec.AttrSpec{Name: "image_name", Type: cty.String, Required: false},
 		"storage_size":                 &hcldec.AttrSpec{Name: "storage_size", Type: cty.Number, Required: false},
 		"timeout":                      &hcldec.AttrSpec{Name: "timeout", Type: cty.String, Required: false},
 		// deprecated, leaved for backward compatibility
-		"storage_uuid":    &hcldec.AttrSpec{Name: "storage_uuid", Type: cty.String, Required: true},
+		"storage_uuid":    &hcldec.AttrSpec{Name: "storage_uuid", Type: cty.String, Required: false},
 		"template_prefix": &hcldec.AttrSpec{Name: "template_prefix", Type: cty.String, Required: false},
 	}
 	return s

@@ -22,9 +22,16 @@ func (s *StepCreateServer) Run(ctx context.Context, state multistep.StateBag) mu
 	}
 	sshKeyPublic := rawSshKeyPublic.(string)
 
-	ui.Say("Creating server...")
+	ui.Say("Getting template...")
 
-	response, err := driver.CreateServer(sshKeyPublic)
+	template, err := driver.GetTemplate()
+	if err != nil {
+		return StepHaltWithError(state, err)
+	}
+
+	ui.Say(fmt.Sprintf("Creating server based on template %q...", template.Title))
+
+	response, err := driver.CreateServer(template.UUID, sshKeyPublic)
 	if err != nil {
 		return StepHaltWithError(state, err)
 	}

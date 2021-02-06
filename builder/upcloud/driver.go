@@ -2,6 +2,7 @@ package upcloud
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud/client"
@@ -11,11 +12,11 @@ import (
 
 type (
 	Driver interface {
-		Validate() (bool, error)
-		CreateServer(string) (*upcloud.ServerDetails, error)
+		CreateServer(string, string) (*upcloud.ServerDetails, error)
 		DeleteServer(string) error
 		StopServer(string) error
 		CreateTemplate(string) error
+		GetTemplate() (*upcloud.Storage, error)
 	}
 
 	driver struct {
@@ -33,16 +34,9 @@ func NewDriver(c *Config) Driver {
 	}
 }
 
-func (d *driver) Validate() (bool, error) {
-	if _, err := d.svc.GetAccount(); err != nil {
-		return false, err
-	}
-	return true, nil
-}
-
-func (d *driver) CreateServer(sshKeyPublic string) (*upcloud.ServerDetails, error) {
+func (d *driver) CreateServer(templateUuid, sshKeyPublic string) (*upcloud.ServerDetails, error) {
 	// Create server
-	request := d.prepareCreateRequest(sshKeyPublic)
+	request := d.prepareCreateRequest(templateUuid, sshKeyPublic)
 	response, err := d.svc.CreateServer(request)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating server: %s", err)
@@ -140,6 +134,68 @@ func (d *driver) CreateTemplate(serverUuid string) error {
 	return nil
 }
 
+func (d *driver) GetTemplate() (*upcloud.Storage, error) {
+	templateUuid := d.config.TemplateUUID
+	templateName := d.config.TemplateName
+
+	if templateUuid != "" {
+		template, err := d.getTemplateByUuid(templateUuid)
+		if err != nil {
+			return nil, fmt.Errorf("Error retrieving template by uuid %q: %s", templateUuid, err)
+		}
+		return template, nil
+	}
+
+	if templateName != "" {
+		template, err := d.getTemplateByName(templateName)
+		if err != nil {
+			return nil, fmt.Errorf("Error retrieving template by name %q: %s", templateName, err)
+		}
+		return template, nil
+
+	}
+	return nil, fmt.Errorf("Error retrieving template")
+}
+
+func (d *driver) getTemplateByUuid(templateUuid string) (*upcloud.Storage, error) {
+	request := &request.GetStorageDetailsRequest{
+		UUID: templateUuid,
+	}
+	response, err := d.svc.GetStorageDetails(request)
+
+	if err != nil {
+		return nil, fmt.Errorf("Error fetching templates: %s", err)
+	}
+
+	return &response.Storage, nil
+}
+
+func (d *driver) getTemplateByName(templateName string) (*upcloud.Storage, error) {
+	request := &request.GetStoragesRequest{
+		Type: upcloud.StorageTypeTemplate,
+	}
+	response, err := d.svc.GetStorages(request)
+
+	if err != nil {
+		return nil, fmt.Errorf("Error fetching templates: %s", err)
+	}
+
+	var found bool
+	var template upcloud.Storage
+	for _, t := range response.Storages {
+		if strings.Contains(strings.ToLower(t.Title), strings.ToLower(templateName)) {
+			found = true
+			template = t
+			break
+		}
+	}
+
+	if !found {
+		return nil, fmt.Errorf("Failed to find template by name %q", templateName)
+	}
+	return &template, nil
+}
+
 func (d *driver) waitDesiredState(serverUuid string, state string) error {
 	request := &request.WaitForServerStateRequest{
 		UUID:         serverUuid,
@@ -195,7 +251,7 @@ func (d *driver) getServerStorage(serverUuid string) (*upcloud.ServerStorageDevi
 	return &storage, nil
 }
 
-func (d *driver) prepareCreateRequest(sshKeyPublic string) *request.CreateServerRequest {
+func (d *driver) prepareCreateRequest(templateUuid, sshKeyPublic string) *request.CreateServerRequest {
 	title := fmt.Sprintf("packer-%s-%s", d.config.ImageName, GetNowString())
 	hostname := d.config.ImageName
 	titleDisk := fmt.Sprintf("%s-disk1", title)
@@ -210,7 +266,7 @@ func (d *driver) prepareCreateRequest(sshKeyPublic string) *request.CreateServer
 		StorageDevices: []request.CreateServerStorageDevice{
 			{
 				Action:  request.CreateServerStorageDeviceActionClone,
-				Storage: d.config.TemplateUUID,
+				Storage: templateUuid,
 				Title:   titleDisk,
 				Size:    d.config.StorageSize,
 				Tier:    upcloud.StorageTierMaxIOPS,
