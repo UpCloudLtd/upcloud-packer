@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	DefaultImageName   = "custom-image"
-	DefaultStorageSize = 30
-	DefaultTimeout     = 5 * time.Minute
+	DefaultTemplatePrefix = "custom-image"
+	DefaultStorageSize    = 30
+	DefaultTimeout        = 5 * time.Minute
 )
 
 type Config struct {
@@ -23,20 +23,16 @@ type Config struct {
 	Comm                communicator.Config `mapstructure:",squash"`
 
 	// Required configuration values
-	Username     string `mapstructure:"username"`
-	Password     string `mapstructure:"password"`
-	Zone         string `mapstructure:"zone"`
-	TemplateUUID string `mapstructure:"template_uuid"`
-	TemplateName string `mapstructure:"template_name"`
+	Username    string `mapstructure:"username"`
+	Password    string `mapstructure:"password"`
+	Zone        string `mapstructure:"zone"`
+	StorageUUID string `mapstructure:"storage_uuid"`
+	StorageName string `mapstructure:"storage_name"`
 
 	// Optional configuration values
-	ImageName   string        `mapstructure:"image_name"`
-	StorageSize int           `mapstructure:"storage_size"`
-	Timeout     time.Duration `mapstructure:"timeout"`
-
-	// deprecated, left for backward compatibility
-	StorageUUID    string `mapstructure:"storage_uuid"`
-	TemplatePrefix string `mapstructure:"template_prefix"`
+	TemplatePrefix string        `mapstructure:"template_prefix"`
+	StorageSize    int           `mapstructure:"storage_size"`
+	Timeout        time.Duration `mapstructure:"state_timeout_duration"`
 
 	ctx interpolate.Context
 }
@@ -52,7 +48,6 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 	}
 
 	c.setEnv()
-	c.setDeprecated()
 
 	// validate
 	var errs *packer.MultiError
@@ -78,9 +73,9 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 		)
 	}
 
-	if c.TemplateUUID == "" && c.TemplateName == "" {
+	if c.StorageUUID == "" && c.StorageName == "" {
 		errs = packer.MultiErrorAppend(
-			errs, errors.New("'template_uuid' or `template_name` must be specified"),
+			errs, errors.New("'storage_uuid' or 'storage_name' must be specified"),
 		)
 	}
 
@@ -89,8 +84,8 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 	}
 
 	// defaults
-	if c.ImageName == "" {
-		c.ImageName = DefaultImageName
+	if c.TemplatePrefix == "" {
+		c.TemplatePrefix = DefaultTemplatePrefix
 	}
 
 	if c.StorageSize == 0 {
@@ -113,15 +108,5 @@ func (c *Config) setEnv() {
 	password := os.Getenv("UPCLOUD_API_PASSWORD")
 	if password != "" && c.Password == "" {
 		c.Password = password
-	}
-}
-
-// set deprecated params if exists
-func (c *Config) setDeprecated() {
-	if c.StorageUUID != "" {
-		c.TemplateUUID = c.StorageUUID
-	}
-	if c.TemplatePrefix != "" {
-		c.ImageName = c.TemplatePrefix
 	}
 }

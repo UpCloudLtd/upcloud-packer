@@ -9,7 +9,8 @@
       "username": "{{ user `username` }}",
       "password": "{{ user `password` }}",
       "zone": "nl-ams1",
-      "storage_uuid": "01000000-0000-4000-8000-000030200200"
+      "storage_uuid": "01000000-0000-4000-8000-000030200200",
+      "ssh_username": "root",
       "storage_size": 50,
       "template_prefix": "ubuntu-server"
     }

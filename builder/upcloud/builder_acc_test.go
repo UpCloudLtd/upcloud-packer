@@ -8,27 +8,19 @@ import (
 )
 
 // Run tests: PACKER_ACC=1 go test -count 1 -v ./...  -timeout=120m
-func TestBuilderAcc_templateUuid(t *testing.T) {
+func TestBuilderAcc_storageUuid(t *testing.T) {
 	builderT.Test(t, builderT.TestCase{
 		PreCheck: func() { testAccPreCheck(t) },
 		Builder:  &Builder{},
-		Template: testBuilderAccTemplateUuid,
+		Template: testBuilderAccStorageUuid,
 	})
 }
 
-func TestBuilderAcc_templateName(t *testing.T) {
+func TestBuilderAcc_storageName(t *testing.T) {
 	builderT.Test(t, builderT.TestCase{
 		PreCheck: func() { testAccPreCheck(t) },
 		Builder:  &Builder{},
-		Template: testBuilderAccTemplateName,
-	})
-}
-
-func TestBuilderAcc_backwardCompatibility(t *testing.T) {
-	builderT.Test(t, builderT.TestCase{
-		PreCheck: func() { testAccPreCheck(t) },
-		Builder:  &Builder{},
-		Template: testBuilderAcc_backwardCompatibility,
+		Template: testBuilderAccStorageName,
 	})
 }
 
@@ -41,38 +33,25 @@ func testAccPreCheck(t *testing.T) {
 	}
 }
 
-const testBuilderAccTemplateUuid = `
+const testBuilderAccStorageUuid = `
 {
 	"builders": [{
             "type": "test",
             "zone": "nl-ams1",
-            "template_uuid": "01000000-0000-4000-8000-000050010400",
+            "storage_uuid": "01000000-0000-4000-8000-000050010400",
             "ssh_username": "root",
-            "image_name": "test-builder",
+            "template_prefix": "test-builder",
             "storage_size": "20"
 	}]
 }
 `
 
-const testBuilderAccTemplateName = `
+const testBuilderAccStorageName = `
 {
 	"builders": [{
             "type": "test",
             "zone": "nl-ams1",
-            "template_name": "ubuntu server 20.04",
-            "ssh_username": "root",
-            "image_name": "test-builder",
-            "storage_size": "20"
-	}]
-}
-`
-
-const testBuilderAcc_backwardCompatibility = `
-{
-	"builders": [{
-            "type": "test",
-            "zone": "nl-ams1",
-            "storage_uuid": "01000000-0000-4000-8000-000030060200",
+            "storage_name": "ubuntu server 20.04",
             "ssh_username": "root",
             "template_prefix": "test-builder",
             "storage_size": "20"

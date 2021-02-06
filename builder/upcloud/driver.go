@@ -16,7 +16,7 @@ type (
 		DeleteServer(string) error
 		StopServer(string) error
 		CreateTemplate(string) (*upcloud.Storage, error)
-		GetTemplate() (*upcloud.Storage, error)
+		GetStorage() (*upcloud.Storage, error)
 		DeleteTemplate(string) error
 	}
 
@@ -35,9 +35,9 @@ func NewDriver(c *Config) Driver {
 	}
 }
 
-func (d *driver) CreateServer(templateUuid, sshKeyPublic string) (*upcloud.ServerDetails, error) {
+func (d *driver) CreateServer(storageUuid, sshKeyPublic string) (*upcloud.ServerDetails, error) {
 	// Create server
-	request := d.prepareCreateRequest(templateUuid, sshKeyPublic)
+	request := d.prepareCreateRequest(storageUuid, sshKeyPublic)
 	response, err := d.svc.CreateServer(request)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating server: %s", err)
@@ -114,10 +114,10 @@ func (d *driver) CreateTemplate(serverUuid string) (*upcloud.Storage, error) {
 	}
 
 	// create image
-	imageTitle := fmt.Sprintf("%s-%s", d.config.ImageName, GetNowString())
+	templateTitle := fmt.Sprintf("%s-%s", d.config.TemplatePrefix, GetNowString())
 	response, err := d.svc.TemplatizeStorage(&request.TemplatizeStorageRequest{
 		UUID:  storage.UUID,
-		Title: imageTitle,
+		Title: templateTitle,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("Error creating image: %s", err)
@@ -135,27 +135,27 @@ func (d *driver) CreateTemplate(serverUuid string) (*upcloud.Storage, error) {
 	return &template.Storage, nil
 }
 
-func (d *driver) GetTemplate() (*upcloud.Storage, error) {
-	templateUuid := d.config.TemplateUUID
-	templateName := d.config.TemplateName
+func (d *driver) GetStorage() (*upcloud.Storage, error) {
+	storageUuid := d.config.StorageUUID
+	storageName := d.config.StorageName
 
-	if templateUuid != "" {
-		template, err := d.getTemplateByUuid(templateUuid)
+	if storageUuid != "" {
+		storage, err := d.getStorageByUuid(storageUuid)
 		if err != nil {
-			return nil, fmt.Errorf("Error retrieving template by uuid %q: %s", templateUuid, err)
+			return nil, fmt.Errorf("Error retrieving storage by uuid %q: %s", storageUuid, err)
 		}
-		return template, nil
+		return storage, nil
 	}
 
-	if templateName != "" {
-		template, err := d.getTemplateByName(templateName)
+	if storageName != "" {
+		storage, err := d.getStorageByName(storageName)
 		if err != nil {
-			return nil, fmt.Errorf("Error retrieving template by name %q: %s", templateName, err)
+			return nil, fmt.Errorf("Error retrieving storage by name %q: %s", storageName, err)
 		}
-		return template, nil
+		return storage, nil
 
 	}
-	return nil, fmt.Errorf("Error retrieving template")
+	return nil, fmt.Errorf("Error retrieving storage")
 }
 
 func (d *driver) DeleteTemplate(templateUuid string) error {
@@ -164,41 +164,40 @@ func (d *driver) DeleteTemplate(templateUuid string) error {
 	})
 }
 
-func (d *driver) getTemplateByUuid(templateUuid string) (*upcloud.Storage, error) {
+func (d *driver) getStorageByUuid(storageUuid string) (*upcloud.Storage, error) {
 	response, err := d.svc.GetStorageDetails(&request.GetStorageDetailsRequest{
-		UUID: templateUuid,
+		UUID: storageUuid,
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("Error fetching templates: %s", err)
+		return nil, fmt.Errorf("Error fetching storages: %s", err)
 	}
-
 	return &response.Storage, nil
 }
 
-func (d *driver) getTemplateByName(templateName string) (*upcloud.Storage, error) {
+func (d *driver) getStorageByName(storageName string) (*upcloud.Storage, error) {
 	response, err := d.svc.GetStorages(&request.GetStoragesRequest{
 		Type: upcloud.StorageTypeTemplate,
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("Error fetching templates: %s", err)
+		return nil, fmt.Errorf("Error fetching storages: %s", err)
 	}
 
 	var found bool
-	var template upcloud.Storage
-	for _, t := range response.Storages {
-		if strings.Contains(strings.ToLower(t.Title), strings.ToLower(templateName)) {
+	var storage upcloud.Storage
+	for _, s := range response.Storages {
+		if strings.Contains(strings.ToLower(s.Title), strings.ToLower(storageName)) {
 			found = true
-			template = t
+			storage = s
 			break
 		}
 	}
 
 	if !found {
-		return nil, fmt.Errorf("Failed to find template by name %q", templateName)
+		return nil, fmt.Errorf("Failed to find storage by name %q", storageName)
 	}
-	return &template, nil
+	return &storage, nil
 }
 
 func (d *driver) waitDesiredState(serverUuid string, state string) error {
@@ -256,9 +255,9 @@ func (d *driver) getServerStorage(serverUuid string) (*upcloud.ServerStorageDevi
 	return &storage, nil
 }
 
-func (d *driver) prepareCreateRequest(templateUuid, sshKeyPublic string) *request.CreateServerRequest {
-	title := fmt.Sprintf("packer-%s-%s", d.config.ImageName, GetNowString())
-	hostname := d.config.ImageName
+func (d *driver) prepareCreateRequest(storageUuid, sshKeyPublic string) *request.CreateServerRequest {
+	title := fmt.Sprintf("packer-%s-%s", d.config.TemplatePrefix, GetNowString())
+	hostname := d.config.TemplatePrefix
 	titleDisk := fmt.Sprintf("%s-disk1", title)
 
 	return &request.CreateServerRequest{
@@ -271,7 +270,7 @@ func (d *driver) prepareCreateRequest(templateUuid, sshKeyPublic string) *reques
 		StorageDevices: []request.CreateServerStorageDevice{
 			{
 				Action:  request.CreateServerStorageDeviceActionClone,
-				Storage: templateUuid,
+				Storage: storageUuid,
 				Title:   titleDisk,
 				Size:    d.config.StorageSize,
 				Tier:    upcloud.StorageTierMaxIOPS,

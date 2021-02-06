@@ -82,8 +82,8 @@ If everything goes according to plan, you should see something like the example 
 upcloud: output will be in this color.
 
 ==> upcloud: Creating temporary ssh key...
-==> upcloud: Getting template...
-==> upcloud: Creating server based on template "Ubuntu Server 20.04 LTS (Focal Fossa)"...
+==> upcloud: Getting storage...
+==> upcloud: Creating server based on storage "Ubuntu Server 20.04 LTS (Focal Fossa)"...
 ==> upcloud: Server "packer-custom-image-20210206-213858" created and in 'started' state
 ==> upcloud: Using ssh communicator to connect: 94.237.109.25
 ==> upcloud: Waiting for SSH to become available...
@@ -111,12 +111,13 @@ This section describes the available configuration options for the builder. Plea
 * `password` (string) The password to use when interfacing with the UpCloud API.
 * `zone` (string) The zone in which the server and template should be created (e.g. `nl-ams1`).
 * `storage_uuid` (string) The UUID of the storage you want to use as a template when creating the server.
-* `storage_name` (string) The name of the storage that will be used to find first matching storage in the list of existing templates.
+* `storage_name` (string) The name of the storage that will be used to find the first matching storage in the list of existing templates.
+* `ssh_username` (string) The user used for the server provisioning.
 
 ### Optional values
 
 * `storage_size` (int) The storage size in gigabytes. Defaults to `30`. Changing this value is useful if you aim to build a template for larger server configurations where the preconfigured server disk is larger than 30 GB. The operating system disk can also be later extended if needed.
-* `timeout` (string) The amount of time to wait for resource state changes. Defaults to `5m`.
+* `state_timeout_duration` (string) The amount of time to wait for resource state changes. Defaults to `5m`.
 * `template_prefix` (string) The prefix to use for the generated template title. Defaults to an empty string, meaning the prefix will be the storage title. You can use this option to easily differentiate between different templates.
 
 ## License
