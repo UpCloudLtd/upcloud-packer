@@ -1,71 +1,81 @@
 package upcloud
 
 import (
-	"fmt"
-	"io/ioutil"
 	"os"
-	"os/exec"
-	"regexp"
 	"testing"
 
-	"github.com/hashicorp/packer-plugin-sdk/acctest"
+	builderT "github.com/hashicorp/packer-plugin-sdk/acctest"
 )
 
-// Run with: PACKER_ACC=1 go test -count 1 -v ./builder/scaffolding/builder_acc_test.go  -timeout=120m
-func TestScaffoldingBuilder(t *testing.T) {
-	testCase := &acctest.PluginTestCase{
-		Name: "scaffolding_builder_basic_test",
-		Setup: func() error {
-			return nil
-		},
-		Teardown: func() error {
-			return nil
-		},
-		Template: testBuilderHCL2Basic,
-		Type:     "scaffolding-my-builder",
-		Check: func(buildCommand *exec.Cmd, logfile string) error {
-			if buildCommand.ProcessState != nil {
-				if buildCommand.ProcessState.ExitCode() != 0 {
-					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
-				}
-			}
+// Run tests: PACKER_ACC=1 go test -count 1 -v ./...  -timeout=120m
+func TestBuilderAcc_templateUuid(t *testing.T) {
+	builderT.Test(t, builderT.TestCase{
+		PreCheck: func() { testAccPreCheck(t) },
+		Builder:  &Builder{},
+		Template: testBuilderAccTemplateUuid,
+	})
+}
 
-			logs, err := os.Open(logfile)
-			if err != nil {
-				return fmt.Errorf("Unable find %s", logfile)
-			}
-			defer logs.Close()
+func TestBuilderAcc_templateName(t *testing.T) {
+	builderT.Test(t, builderT.TestCase{
+		PreCheck: func() { testAccPreCheck(t) },
+		Builder:  &Builder{},
+		Template: testBuilderAccTemplateName,
+	})
+}
 
-			logsBytes, err := ioutil.ReadAll(logs)
-			if err != nil {
-				return fmt.Errorf("Unable to read %s", logfile)
-			}
-			logsString := string(logsBytes)
+func TestBuilderAcc_backwardCompatibility(t *testing.T) {
+	builderT.Test(t, builderT.TestCase{
+		PreCheck: func() { testAccPreCheck(t) },
+		Builder:  &Builder{},
+		Template: testBuilderAcc_backwardCompatibility,
+	})
+}
 
-			buildGeneratedDataLog := "scaffolding-my-builder.basic-example: build generated data: mock-build-data"
-			if matched, _ := regexp.MatchString(buildGeneratedDataLog+".*", logsString); !matched {
-				t.Fatalf("logs doesn't contain expected foo value %q", logsString)
-			}
-			return nil
-		},
+func testAccPreCheck(t *testing.T) {
+	if v := os.Getenv("UPCLOUD_USERNAME"); v == "" {
+		t.Fatal("UPCLOUD_USERNAME must be set for acceptance tests")
 	}
-	acctest.TestPlugin(t, testCase)
+	if v := os.Getenv("UPCLOUD_PASSWORD"); v == "" {
+		t.Fatal("UPCLOUD_PASSWORD must be set for acceptance tests")
+	}
 }
 
-const testBuilderHCL2Basic = `
-source "scaffolding-my-builder" "basic-example" {
-  mock = "mock-config"
+const testBuilderAccTemplateUuid = `
+{
+	"builders": [{
+            "type": "test",
+            "zone": "nl-ams1",
+            "template_uuid": "01000000-0000-4000-8000-000050010400",
+            "ssh_username": "root",
+            "image_name": "test-builder",
+            "storage_size": "20"
+	}]
 }
+`
 
-build {
-  sources = [
-    "source.scaffolding-my-builder.basic-example"
-  ]
+const testBuilderAccTemplateName = `
+{
+	"builders": [{
+            "type": "test",
+            "zone": "nl-ams1",
+            "template_name": "ubuntu server 20.04",
+            "ssh_username": "root",
+            "image_name": "test-builder",
+            "storage_size": "20"
+	}]
+}
+`
 
-  provisioner "shell-local" {
-    inline = [
-      "echo build generated data: ${build.GeneratedMockData}",
-    ]
-  }
+const testBuilderAcc_backwardCompatibility = `
+{
+	"builders": [{
+            "type": "test",
+            "zone": "nl-ams1",
+            "storage_uuid": "01000000-0000-4000-8000-000030060200",
+            "ssh_username": "root",
+            "template_prefix": "test-builder",
+            "storage_size": "20"
+	}]
 }
 `

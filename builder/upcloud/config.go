@@ -2,6 +2,7 @@ package upcloud
 
 import (
 	"errors"
+	"os"
 	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/common"
@@ -50,6 +51,7 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 		return nil, err
 	}
 
+	c.setEnv()
 	c.setDeprecated()
 
 	// validate
@@ -99,6 +101,19 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 		c.Timeout = DefaultTimeout
 	}
 	return nil, nil
+}
+
+// get params from environment
+func (c *Config) setEnv() {
+	username := os.Getenv("UPCLOUD_USERNAME")
+	if username != "" && c.Username == "" {
+		c.Username = username
+	}
+
+	password := os.Getenv("UPCLOUD_PASSWORD")
+	if password != "" && c.Password == "" {
+		c.Password = password
+	}
 }
 
 // set deprecated params if exists
