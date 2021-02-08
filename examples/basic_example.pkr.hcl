@@ -13,7 +13,6 @@ source "upcloud" "test" {
   password = "${var.password}"
   zone = "nl-ams1"
   storage_name = "ubuntu server 20.04"
-  ssh_username = "root"
   template_prefix = "ubuntu-server"
 }
 

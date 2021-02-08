@@ -14,6 +14,7 @@ import (
 
 const (
 	DefaultTemplatePrefix = "custom-image"
+	DefaultSSHUsername    = "root"
 	DefaultStorageSize    = 30
 	DefaultTimeout        = 5 * time.Minute
 )
@@ -49,6 +50,23 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 
 	c.setEnv()
 
+	// defaults
+	if c.TemplatePrefix == "" {
+		c.TemplatePrefix = DefaultTemplatePrefix
+	}
+
+	if c.StorageSize == 0 {
+		c.StorageSize = DefaultStorageSize
+	}
+
+	if c.Timeout == 0 {
+		c.Timeout = DefaultTimeout
+	}
+
+	if c.Comm.SSHUsername == "" {
+		c.Comm.SSHUsername = DefaultSSHUsername
+	}
+
 	// validate
 	var errs *packer.MultiError
 	if es := c.Comm.Prepare(&c.ctx); len(es) > 0 {
@@ -83,18 +101,6 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 		return nil, errs
 	}
 
-	// defaults
-	if c.TemplatePrefix == "" {
-		c.TemplatePrefix = DefaultTemplatePrefix
-	}
-
-	if c.StorageSize == 0 {
-		c.StorageSize = DefaultStorageSize
-	}
-
-	if c.Timeout == 0 {
-		c.Timeout = DefaultTimeout
-	}
 	return nil, nil
 }
 

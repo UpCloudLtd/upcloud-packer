@@ -47,7 +47,6 @@ Here is a sample template, which you can also find in the `examples/` directory.
       "username": "{{ user `username` }}",
       "password": "{{ user `password` }}",
       "zone": "nl-ams1",
-      "ssh_username": "root",
       "template_uuid": "01000000-0000-4000-8000-000030200200"
     }
   ],
@@ -112,7 +111,6 @@ This section describes the available configuration options for the builder. Plea
 * `zone` (string) The zone in which the server and template should be created (e.g. `nl-ams1`).
 * `storage_uuid` (string) The UUID of the storage you want to use as a template when creating the server.
 * `storage_name` (string) The name of the storage that will be used to find the first matching storage in the list of existing templates.
-* `ssh_username` (string) The user used for the server provisioning.
 
 ### Optional values
 
