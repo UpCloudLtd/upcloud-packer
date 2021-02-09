@@ -52,25 +52,9 @@ func (d *driver) CreateServer(storageUuid, sshKeyPublic string) (*upcloud.Server
 }
 
 func (d *driver) DeleteServer(serverUuid string) error {
-	// get storage to delete it once server deleted
-	storage, err := d.getServerStorage(serverUuid)
-	if err != nil {
-		return err
-	}
-
-	// delete server
-	err = d.svc.DeleteServer(&request.DeleteServerRequest{
+	return d.svc.DeleteServerAndStorages(&request.DeleteServerAndStoragesRequest{
 		UUID: serverUuid,
 	})
-	if err != nil {
-		return fmt.Errorf("Failed to delete server: %s", err)
-	}
-
-	// delete storage
-	err = d.svc.DeleteStorage(&request.DeleteStorageRequest{
-		UUID: storage.UUID,
-	})
-	return nil
 }
 
 func (d *driver) StopServer(serverUuid string) error {

@@ -47,7 +47,7 @@ Here is a sample template, which you can also find in the `examples/` directory.
       "username": "{{ user `username` }}",
       "password": "{{ user `password` }}",
       "zone": "nl-ams1",
-      "template_uuid": "01000000-0000-4000-8000-000030200200"
+      "storage_uuid": "01000000-0000-4000-8000-000030200200"
     }
   ],
   "provisioners": [
