@@ -43,4 +43,4 @@ jobs:
           UPCLOUD_API_USER: ${{ secrets.UPCLOUD_API_USER }}
           UPCLOUD_API_PASSWORD: ${{ secrets.UPCLOUD_API_PASSWORD }}
       if: env.UPCLOUD_API_PASSWORD != ''
-      run: Run tests: PACKER_ACC=1 go test -count 1 -v ./...  -timeout=120m
+      run: PACKER_ACC=1 go test -count 1 -v ./... -timeout=120m
