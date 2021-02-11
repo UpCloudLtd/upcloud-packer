@@ -10,6 +10,10 @@ import (
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud/service"
 )
 
+const (
+	DefaultPlan = "1xCPU-2GB"
+)
+
 type (
 	Driver interface {
 		CreateServer(string, string) (*upcloud.ServerDetails, error)
@@ -249,8 +253,7 @@ func (d *driver) prepareCreateRequest(storageUuid, sshKeyPublic string) *request
 		Hostname:         hostname,
 		Zone:             d.config.Zone,
 		PasswordDelivery: request.PasswordDeliveryNone,
-		CoreNumber:       2,
-		MemoryAmount:     2048,
+		Plan:             DefaultPlan,
 		StorageDevices: []request.CreateServerStorageDevice{
 			{
 				Action:  request.CreateServerStorageDeviceActionClone,
@@ -266,22 +269,6 @@ func (d *driver) prepareCreateRequest(storageUuid, sshKeyPublic string) *request
 					IPAddresses: []request.CreateServerIPAddress{
 						{
 							Family: upcloud.IPAddressFamilyIPv4,
-						},
-					},
-					Type: upcloud.IPAddressAccessPublic,
-				},
-				{
-					IPAddresses: []request.CreateServerIPAddress{
-						{
-							Family: upcloud.IPAddressFamilyIPv4,
-						},
-					},
-					Type: upcloud.IPAddressAccessUtility,
-				},
-				{
-					IPAddresses: []request.CreateServerIPAddress{
-						{
-							Family: upcloud.IPAddressFamilyIPv6,
 						},
 					},
 					Type: upcloud.IPAddressAccessPublic,
