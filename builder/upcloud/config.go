@@ -2,47 +2,43 @@ package upcloud
 
 import (
 	"errors"
-	"fmt"
-	"github.com/UpCloudLtd/upcloud-go-api/upcloud/client"
-	"github.com/UpCloudLtd/upcloud-go-api/upcloud/service"
-	"github.com/hashicorp/packer/common"
-	"github.com/hashicorp/packer/helper/communicator"
-	"github.com/hashicorp/packer/helper/config"
-	"github.com/hashicorp/packer/packer"
-	"github.com/hashicorp/packer/template/interpolate"
+	"os"
 	"time"
+
+	"github.com/hashicorp/packer-plugin-sdk/common"
+	"github.com/hashicorp/packer-plugin-sdk/communicator"
+	"github.com/hashicorp/packer-plugin-sdk/packer"
+	"github.com/hashicorp/packer-plugin-sdk/template/config"
+	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
 )
 
-// Config represents the configuration for this builder
+const (
+	DefaultTemplatePrefix = "custom-image"
+	DefaultSSHUsername    = "root"
+	DefaultStorageSize    = 30
+	DefaultTimeout        = 5 * time.Minute
+)
+
 type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
 	Comm                communicator.Config `mapstructure:",squash"`
 
 	// Required configuration values
-	Username       string `mapstructure:"username"`
-	Password       string `mapstructure:"password"`
-	Zone           string `mapstructure:"zone"`
-	StorageUUID    string `mapstructure:"storage_uuid"`
-	TemplatePrefix string `mapstructure:"template_prefix"`
+	Username    string `mapstructure:"username"`
+	Password    string `mapstructure:"password"`
+	Zone        string `mapstructure:"zone"`
+	StorageUUID string `mapstructure:"storage_uuid"`
+	StorageName string `mapstructure:"storage_name"`
 
 	// Optional configuration values
-	StorageSize             int    `mapstructure:"storage_size"`
-	RawStateTimeoutDuration string `mapstructure:"state_timeout_duration"`
+	TemplatePrefix string        `mapstructure:"template_prefix"`
+	StorageSize    int           `mapstructure:"storage_size"`
+	Timeout        time.Duration `mapstructure:"state_timeout_duration"`
 
-	StateTimeoutDuration time.Duration
-	ctx                  interpolate.Context
+	ctx interpolate.Context
 }
 
-// GetService returns a service object using the credentials specified in the configuration
-func (c *Config) GetService() *service.Service {
-	t := client.New(c.Username, c.Password)
-	return service.New(t)
-}
-
-// NewConfig creates a new configuration, setting default values and validating it along the way
-func NewConfig(raws ...interface{}) (*Config, error) {
-	c := new(Config)
-
+func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 	err := config.Decode(c, &config.DecodeOpts{
 		Interpolate:        true,
 		InterpolateContext: &c.ctx,
@@ -52,52 +48,71 @@ func NewConfig(raws ...interface{}) (*Config, error) {
 		return nil, err
 	}
 
-	// Assign default values if possible
-	c.Comm.SSHUsername = "root"
+	c.setEnv()
+
+	// defaults
+	if c.TemplatePrefix == "" {
+		c.TemplatePrefix = DefaultTemplatePrefix
+	}
 
 	if c.StorageSize == 0 {
-		c.StorageSize = 30
+		c.StorageSize = DefaultStorageSize
 	}
 
-	if c.RawStateTimeoutDuration == "" {
-		c.RawStateTimeoutDuration = "5m"
+	if c.Timeout == 0 {
+		c.Timeout = DefaultTimeout
 	}
 
-	// Validation
+	if c.Comm.SSHUsername == "" {
+		c.Comm.SSHUsername = DefaultSSHUsername
+	}
+
+	// validate
 	var errs *packer.MultiError
-	errs = packer.MultiErrorAppend(errs, c.Comm.Prepare(&c.ctx)...)
+	if es := c.Comm.Prepare(&c.ctx); len(es) > 0 {
+		errs = packer.MultiErrorAppend(errs, es...)
+	}
 
-	// Check for required configurations that will display errors if not set
 	if c.Username == "" {
 		errs = packer.MultiErrorAppend(
-			errs, errors.New("\"username\" must be specified"))
+			errs, errors.New("'username' must be specified"),
+		)
 	}
 
 	if c.Password == "" {
 		errs = packer.MultiErrorAppend(
-			errs, errors.New("\"password\" must be specified"))
+			errs, errors.New("'password' must be specified"),
+		)
 	}
 
 	if c.Zone == "" {
 		errs = packer.MultiErrorAppend(
-			errs, errors.New("\"zone\" must be specified"))
+			errs, errors.New("'zone' must be specified"),
+		)
 	}
 
-	if c.StorageUUID == "" {
+	if c.StorageUUID == "" && c.StorageName == "" {
 		errs = packer.MultiErrorAppend(
-			errs, errors.New("\"storage_uuid\" must be specified"))
+			errs, errors.New("'storage_uuid' or 'storage_name' must be specified"),
+		)
 	}
 
-	stateTimeout, err := time.ParseDuration(c.RawStateTimeoutDuration)
-	if err != nil {
-		errs = packer.MultiErrorAppend(
-			errs, fmt.Errorf("Failed to parse state_timeout_duration: %s", err))
-	}
-	c.StateTimeoutDuration = stateTimeout
-
-	if len(errs.Errors) > 0 {
+	if errs != nil && len(errs.Errors) > 0 {
 		return nil, errs
 	}
 
-	return c, nil
+	return nil, nil
+}
+
+// get params from environment
+func (c *Config) setEnv() {
+	username := os.Getenv("UPCLOUD_API_USER")
+	if username != "" && c.Username == "" {
+		c.Username = username
+	}
+
+	password := os.Getenv("UPCLOUD_API_PASSWORD")
+	if password != "" && c.Password == "" {
+		c.Password = password
+	}
 }

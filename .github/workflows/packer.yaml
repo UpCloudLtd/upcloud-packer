@@ -1,0 +1,46 @@
+name: CI
+
+on: [push]
+
+jobs:
+  test:
+
+    strategy:
+      matrix:
+        go-version: [1.15.x]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+    
+    - name: Dependencies
+      run: |
+        go version
+        go get -u golang.org/x/lint/golint
+        
+    - name: Build
+      run: go build . 
+      
+    - name: Code Style
+      run: |
+        go vet .
+        golint .
+    
+    - name: Test PR
+      if: github.ref != 'refs/heads/master'
+      run: go test -v ./...
+
+    - name: Test Master
+      if: github.ref == 'refs/heads/master'
+      env:
+          UPCLOUD_API_USER: ${{ secrets.UPCLOUD_API_USER }}
+          UPCLOUD_API_PASSWORD: ${{ secrets.UPCLOUD_API_PASSWORD }}
+          PACKER_ACC: 1
+      run: go test -count 1 -v ./... -timeout=30m

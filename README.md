@@ -20,7 +20,7 @@ You will need to have the [Go](https://golang.org/) programming language and the
 
 Run the following commands to download and install the plugin from the source.
 
-```
+```sh
 git clone https://github.com/UpCloudLtd/upcloud-packer
 cd upcloud-packer
 go build
@@ -33,21 +33,21 @@ The builder will automatically generate a temporary SSH key pair for the `root` 
 
 If you want to login to a server deployed with the template, you might want to include an SSH key to your `root` user by replacing the `<ssh-rsa_key>` in the below example with your public key.
 
-Here is a sample template, which you can also find in the `examples/` directory. It reads your UpCloud API credentials from the environment variables and creates an Ubuntu 16.04 server in the `nl-ams1` region.
+Here is a sample template, which you can also find in the `examples/` directory. It reads your UpCloud API credentials from the environment variables and creates an Ubuntu 20.04 LTS server in the `nl-ams1` region.
 
 ```json
 {
   "variables": {
-    "UPCLOUD_USERNAME": "{{ env `UPCLOUD_API_USER` }}",
-    "UPCLOUD_PASSWORD": "{{ env `UPCLOUD_API_PASSWORD` }}"
+    "username": "{{ env `UPCLOUD_API_USER` }}",
+    "password": "{{ env `UPCLOUD_API_PASSWORD` }}"
   },
   "builders": [
     {
       "type": "upcloud",
-      "username": "{{ user `UPCLOUD_USERNAME` }}",
-      "password": "{{ user `UPCLOUD_PASSWORD` }}",
+      "username": "{{ user `username` }}",
+      "password": "{{ user `password` }}",
       "zone": "nl-ams1",
-      "storage_uuid": "01000000-0000-4000-8000-000030060200"
+      "storage_uuid": "01000000-0000-4000-8000-000030200200"
     }
   ],
   "provisioners": [
@@ -67,7 +67,7 @@ You will need to provide a username and a password with the access rights to the
 
 Enter the API user credentials in your terminal with the following commands. Replace the `<API_username>` and `<API_password>` with your user details.
 
-```json
+```sh
 export UPCLOUD_API_USER=<API_username>
 export UPCLOUD_API_PASSWORD=<API_password>
 ```
@@ -77,32 +77,27 @@ packer build examples/basic_example.json
 ```
 If everything goes according to plan, you should see something like the example output below.
 
-```json
-upcloud output will be in this color.
+```sh
+upcloud: output will be in this color.
 
-==> upcloud: Creating temporary SSH key ...
-==> upcloud: Creating server "packer-builder-upcloud-1502364156" ...
-==> upcloud: Waiting for server "packer-builder-upcloud-1502364156" to enter the "started" state ...
-==> upcloud: Server "packer-builder-upcloud-1502364156" is now in "started" state
+==> upcloud: Creating temporary ssh key...
+==> upcloud: Getting storage...
+==> upcloud: Creating server based on storage "Ubuntu Server 20.04 LTS (Focal Fossa)"...
+==> upcloud: Server "packer-custom-image-20210206-213858" created and in 'started' state
+==> upcloud: Using ssh communicator to connect: 94.237.109.25
 ==> upcloud: Waiting for SSH to become available...
 ==> upcloud: Connected to SSH!
-==> upcloud: Provisioning with shell script: /tmp/packer-shell888337462
-	upcloud: Get:1 http://security.ubuntu.com/ubuntu xenial-security InRelease [102 kB]
-    upcloud: Hit:2 http://fi.archive.ubuntu.com/ubuntu xenial InRelease
-    upcloud: Get:3 http://fi.archive.ubuntu.com/ubuntu xenial-updates InRelease [102 kB]
+==> upcloud: Provisioning with shell script: /var/folders/pt/x34s6zq90qxb78q8fcwx6jx80000gn/T/packer-shell198358867
+    upcloud: Hit:1 http://archive.ubuntu.com/ubuntu focal InRelease
+    upcloud: Get:2 http://archive.ubuntu.com/ubuntu focal-updates InRelease [114 kB]
 ...
-==> upcloud: Stopping server "packer-builder-upcloud-1502364156" ...
-==> upcloud: Waiting for server "packer-builder-upcloud-1502364156" to enter the "stopped" state ...
-==> upcloud: Server "packer-builder-upcloud-1502364156" is now in "stopped" state
-==> upcloud: Templatizing storage device "packer-builder-upcloud-1502364156-disk1" ...
-==> upcloud: Waiting for storage "packer-builder-upcloud-1502364156-disk1-template-1502364398" to enter the "online" state
-==> upcloud: Waiting for server "packer-builder-upcloud-1502364156" to exit the "maintenance" state ...
-==> upcloud: Deleting server "packer-builder-upcloud-1502364156" ...
-==> upcloud: Deleting disk "packer-builder-upcloud-1502364156-disk1" ...
-Build 'upcloud' finished.
-
-==> Builds finished. The artifacts of successful builds are:
---> upcloud: Private template (UUID: 013399d9-5308-46b1-9f89-bcbe0c4b983d, Title: packer-builder-upcloud-1502364156-disk1-template-1502364398, Zone: nl-ams1)
+==> upcloud: Stopping server "packer-custom-image-20210206-213858"...
+==> upcloud: Server "packer-custom-image-20210206-213858" is now in 'stopped' state
+==> upcloud: Creating storage template for server "packer-custom-image-20210206-213858"...
+==> upcloud: Storage template for server "packer-custom-image-20210206-213858" created
+==> upcloud: Stopping server "packer-custom-image-20210206-213858"...
+==> upcloud: Deleting server "packer-custom-image-20210206-213858"...
+Build 'upcloud' finished after 3 minutes 19 seconds.
 ```
 
 ## Configuration reference
@@ -116,8 +111,10 @@ This section describes the available configuration options for the builder. Plea
 * `zone` (string) The zone in which the server and template should be created (e.g. `nl-ams1`).
 * `storage_uuid` (string) The UUID of the storage you want to use as a template when creating the server.
 
+
 ### Optional values
 
+* `storage_name` (string) The name of the storage that will be used to find the first matching storage in the list of existing templates. Note that `storage_uuid` parameter has higher priority. You should use either `storage_uuid` or `storage_name` for not strict matching (e.g "ubuntu server 20.04").
 * `storage_size` (int) The storage size in gigabytes. Defaults to `30`. Changing this value is useful if you aim to build a template for larger server configurations where the preconfigured server disk is larger than 30 GB. The operating system disk can also be later extended if needed.
 * `state_timeout_duration` (string) The amount of time to wait for resource state changes. Defaults to `5m`.
 * `template_prefix` (string) The prefix to use for the generated template title. Defaults to an empty string, meaning the prefix will be the storage title. You can use this option to easily differentiate between different templates.
