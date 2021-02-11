@@ -1,5 +1,12 @@
 # Change log
 
+## 4.0.0
+
+* Switched to use `packer-plugin-sdk`
+* Bumped up dependencies (`upcloud-go-api`, `golang.org/x/crypto` and etc)
+* Encapsulated Upcloud API interaction in the driver module
+* Added new `storage_name` config parameter
+
 ## 3.0.0
 
 * Moved the project to UpCloud's GitHub organization
