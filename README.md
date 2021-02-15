@@ -115,7 +115,7 @@ This section describes the available configuration options for the builder. Plea
 ### Optional values
 
 * `storage_name` (string) The name of the storage that will be used to find the first matching storage in the list of existing templates. Note that `storage_uuid` parameter has higher priority. You should use either `storage_uuid` or `storage_name` for not strict matching (e.g "ubuntu server 20.04").
-* `storage_size` (int) The storage size in gigabytes. Defaults to `30`. Changing this value is useful if you aim to build a template for larger server configurations where the preconfigured server disk is larger than 30 GB. The operating system disk can also be later extended if needed.
+* `storage_size` (int) The storage size in gigabytes. Defaults to `25`. Changing this value is useful if you aim to build a template for larger server configurations where the preconfigured server disk is larger than 25 GB. The operating system disk can also be later extended if needed. Note that Windows templates require large storage size, than default 25 Gb.
 * `state_timeout_duration` (string) The amount of time to wait for resource state changes. Defaults to `5m`.
 * `template_prefix` (string) The prefix to use for the generated template title. Defaults to an empty string, meaning the prefix will be the storage title. You can use this option to easily differentiate between different templates.
 
