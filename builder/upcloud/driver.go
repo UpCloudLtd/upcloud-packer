@@ -19,8 +19,8 @@ type (
 		CreateServer(string, string) (*upcloud.ServerDetails, error)
 		DeleteServer(string) error
 		StopServer(string) error
-		CreateTemplate(string) (*upcloud.Storage, error)
 		GetStorage() (*upcloud.Storage, error)
+		CreateTemplate(string) (*upcloud.Storage, error)
 		DeleteTemplate(string) error
 	}
 
