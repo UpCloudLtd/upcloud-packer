@@ -15,7 +15,7 @@ import (
 const (
 	DefaultTemplatePrefix = "custom-image"
 	DefaultSSHUsername    = "root"
-	DefaultStorageSize    = 30
+	DefaultStorageSize    = 25
 	DefaultTimeout        = 5 * time.Minute
 )
 
