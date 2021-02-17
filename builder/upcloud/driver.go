@@ -3,6 +3,7 @@ package upcloud
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud/client"
@@ -16,21 +17,30 @@ const (
 
 type (
 	Driver interface {
-		CreateServer(string, string) (*upcloud.ServerDetails, error)
+		CreateServer(string, string, string, string, int) (*upcloud.ServerDetails, error)
 		DeleteServer(string) error
 		StopServer(string) error
-		GetStorage() (*upcloud.Storage, error)
-		CreateTemplate(string) (*upcloud.Storage, error)
+		GetStorage(string, string) (*upcloud.Storage, error)
+		GetServerStorage(string) (*upcloud.ServerStorageDevice, error)
+		CloneStorage(string, string, string) (*upcloud.Storage, error)
+		CreateTemplate(string, string) (*upcloud.Storage, error)
 		DeleteTemplate(string) error
 	}
 
 	driver struct {
 		svc    *service.Service
-		config *Config
+		config *DriverConfig
+	}
+
+	DriverConfig struct {
+		Username    string
+		Password    string
+		Timeout     time.Duration
+		SSHUsername string
 	}
 )
 
-func NewDriver(c *Config) Driver {
+func NewDriver(c *DriverConfig) Driver {
 	client := client.New(c.Username, c.Password)
 	svc := service.New(client)
 	return &driver{
@@ -39,9 +49,9 @@ func NewDriver(c *Config) Driver {
 	}
 }
 
-func (d *driver) CreateServer(storageUuid, sshKeyPublic string) (*upcloud.ServerDetails, error) {
+func (d *driver) CreateServer(storageUuid, zone, prefix, sshKeyPublic string, storageSize int) (*upcloud.ServerDetails, error) {
 	// Create server
-	request := d.prepareCreateRequest(storageUuid, sshKeyPublic)
+	request := d.prepareCreateRequest(storageUuid, zone, prefix, sshKeyPublic, storageSize)
 	response, err := d.svc.CreateServer(request)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating server: %s", err)
@@ -94,26 +104,22 @@ func (d *driver) StopServer(serverUuid string) error {
 	return nil
 }
 
-func (d *driver) CreateTemplate(serverUuid string) (*upcloud.Storage, error) {
-	// get storage details
-	storage, err := d.getServerStorage(serverUuid)
-	if err != nil {
-		return nil, err
-	}
-
+func (d *driver) CreateTemplate(serverStorageUuid, prefix string) (*upcloud.Storage, error) {
 	// create image
-	templateTitle := fmt.Sprintf("%s-%s", d.config.TemplatePrefix, GetNowString())
+	templateTitle := fmt.Sprintf("%s-%s", prefix, GetNowString())
 	response, err := d.svc.TemplatizeStorage(&request.TemplatizeStorageRequest{
-		UUID:  storage.UUID,
+		UUID:  serverStorageUuid,
 		Title: templateTitle,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("Error creating image: %s", err)
 	}
+	return d.waitStorageOnline(response.UUID)
+}
 
-	// wait for online state
+func (d *driver) waitStorageOnline(storageUuid string) (*upcloud.Storage, error) {
 	template, err := d.svc.WaitForStorageState(&request.WaitForStorageStateRequest{
-		UUID:         response.UUID,
+		UUID:         storageUuid,
 		DesiredState: upcloud.StorageStateOnline,
 		Timeout:      d.config.Timeout,
 	})
@@ -123,10 +129,8 @@ func (d *driver) CreateTemplate(serverUuid string) (*upcloud.Storage, error) {
 	return &template.Storage, nil
 }
 
-func (d *driver) GetStorage() (*upcloud.Storage, error) {
-	storageUuid := d.config.StorageUUID
-	storageName := d.config.StorageName
-
+// fetch storage by uuid or name
+func (d *driver) GetStorage(storageUuid, storageName string) (*upcloud.Storage, error) {
 	if storageUuid != "" {
 		storage, err := d.getStorageByUuid(storageUuid)
 		if err != nil {
@@ -150,6 +154,18 @@ func (d *driver) DeleteTemplate(templateUuid string) error {
 	return d.svc.DeleteStorage(&request.DeleteStorageRequest{
 		UUID: templateUuid,
 	})
+}
+
+func (d *driver) CloneStorage(storageUuid string, zone string, title string) (*upcloud.Storage, error) {
+	response, err := d.svc.CloneStorage(&request.CloneStorageRequest{
+		UUID:  storageUuid,
+		Zone:  zone,
+		Title: title,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return d.waitStorageOnline(response.UUID)
 }
 
 func (d *driver) getStorageByUuid(storageUuid string) (*upcloud.Storage, error) {
@@ -222,7 +238,7 @@ func (d *driver) getServerDetails(serverUuid string) (*upcloud.ServerDetails, er
 	return response, nil
 }
 
-func (d *driver) getServerStorage(serverUuid string) (*upcloud.ServerStorageDevice, error) {
+func (d *driver) GetServerStorage(serverUuid string) (*upcloud.ServerStorageDevice, error) {
 	details, err := d.getServerDetails(serverUuid)
 	if err != nil {
 		return nil, err
@@ -243,15 +259,15 @@ func (d *driver) getServerStorage(serverUuid string) (*upcloud.ServerStorageDevi
 	return &storage, nil
 }
 
-func (d *driver) prepareCreateRequest(storageUuid, sshKeyPublic string) *request.CreateServerRequest {
-	title := fmt.Sprintf("packer-%s-%s", d.config.TemplatePrefix, GetNowString())
-	hostname := d.config.TemplatePrefix
+func (d *driver) prepareCreateRequest(storageUuid, zone, prefix, sshKeyPublic string, storageSize int) *request.CreateServerRequest {
+	title := fmt.Sprintf("packer-%s-%s", prefix, GetNowString())
+	hostname := prefix
 	titleDisk := fmt.Sprintf("%s-disk1", title)
 
-	return &request.CreateServerRequest{
+	request := request.CreateServerRequest{
 		Title:            title,
 		Hostname:         hostname,
-		Zone:             d.config.Zone,
+		Zone:             zone,
 		PasswordDelivery: request.PasswordDeliveryNone,
 		Plan:             DefaultPlan,
 		StorageDevices: []request.CreateServerStorageDevice{
@@ -259,7 +275,7 @@ func (d *driver) prepareCreateRequest(storageUuid, sshKeyPublic string) *request
 				Action:  request.CreateServerStorageDeviceActionClone,
 				Storage: storageUuid,
 				Title:   titleDisk,
-				Size:    d.config.StorageSize,
+				Size:    storageSize,
 				Tier:    upcloud.StorageTierMaxIOPS,
 			},
 		},
@@ -277,10 +293,11 @@ func (d *driver) prepareCreateRequest(storageUuid, sshKeyPublic string) *request
 		},
 		LoginUser: &request.LoginUser{
 			CreatePassword: "no",
-			Username:       d.config.Comm.SSHUsername,
-			SSHKeys: []string{
-				sshKeyPublic,
-			},
 		},
 	}
+	if sshKeyPublic != "" {
+		request.LoginUser.Username = d.config.SSHUsername
+		request.LoginUser.SSHKeys = []string{sshKeyPublic}
+	}
+	return &request
 }

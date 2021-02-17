@@ -11,6 +11,7 @@ import (
 
 // StepCreateServer represents the step that creates a server
 type StepCreateServer struct {
+	Config        *Config
 	GeneratedData *packerbuilderdata.GeneratedData
 }
 
@@ -27,14 +28,20 @@ func (s *StepCreateServer) Run(ctx context.Context, state multistep.StateBag) mu
 
 	ui.Say("Getting storage...")
 
-	storage, err := driver.GetStorage()
+	storage, err := driver.GetStorage(s.Config.StorageUUID, s.Config.StorageName)
 	if err != nil {
 		return StepHaltWithError(state, err)
 	}
 
 	ui.Say(fmt.Sprintf("Creating server based on storage %q...", storage.Title))
 
-	response, err := driver.CreateServer(storage.UUID, sshKeyPublic)
+	response, err := driver.CreateServer(
+		storage.UUID,
+		s.Config.Zone,
+		s.Config.TemplatePrefix,
+		sshKeyPublic,
+		s.Config.StorageSize,
+	)
 	if err != nil {
 		return StepHaltWithError(state, err)
 	}

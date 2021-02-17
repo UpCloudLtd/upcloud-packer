@@ -118,6 +118,7 @@ This section describes the available configuration options for the builder. Plea
 * `storage_size` (int) The storage size in gigabytes. Defaults to `25`. Changing this value is useful if you aim to build a template for larger server configurations where the preconfigured server disk is larger than 25 GB. The operating system disk can also be later extended if needed. Note that Windows templates require large storage size, than default 25 Gb.
 * `state_timeout_duration` (string) The amount of time to wait for resource state changes. Defaults to `5m`.
 * `template_prefix` (string) The prefix to use for the generated template title. Defaults to an empty string, meaning the prefix will be the storage title. You can use this option to easily differentiate between different templates.
+* `clone_zones` ([]string) The array of extra zones (locations) where created templates should be cloned. Note that default `state_timeout_duration` is not enough for cloning, better to increase a value depending on storage size.
 
 ## License
 

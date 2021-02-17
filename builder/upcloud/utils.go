@@ -30,3 +30,8 @@ func GetServerIp(details *upcloud.ServerDetails) (string, error) {
 func GetNowString() string {
 	return time.Now().Format("20060102-150405")
 }
+
+// SshHostCallback retrieves the public IPv4 address of the server
+func SshHostCallback(state multistep.StateBag) (string, error) {
+	return state.Get("server_ip").(string), nil
+}
