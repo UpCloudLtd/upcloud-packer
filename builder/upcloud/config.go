@@ -5,6 +5,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
+	"github.com/UpCloudLtd/upcloud-go-api/upcloud/request"
+	internal "github.com/UpCloudLtd/upcloud-packer/internal"
 	"github.com/hashicorp/packer-plugin-sdk/common"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
@@ -17,6 +20,19 @@ const (
 	DefaultSSHUsername    = "root"
 	DefaultStorageSize    = 25
 	DefaultTimeout        = 5 * time.Minute
+)
+
+var (
+	DefaultNetworking = []request.CreateServerInterface{
+		{
+			IPAddresses: []request.CreateServerIPAddress{
+				{
+					Family: upcloud.IPAddressFamilyIPv4,
+				},
+			},
+			Type: upcloud.IPAddressAccessPublic,
+		},
+	}
 )
 
 type Config struct {
@@ -35,6 +51,9 @@ type Config struct {
 	StorageSize    int           `mapstructure:"storage_size"`
 	Timeout        time.Duration `mapstructure:"state_timeout_duration"`
 	CloneZones     []string      `mapstructure:"clone_zones"`
+
+	RawNetworking []internal.NetworkInterface `mapstructure:"network_interfaces"`
+	Networking    []request.CreateServerInterface
 
 	ctx interpolate.Context
 }
@@ -66,6 +85,12 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 
 	if c.Comm.SSHUsername == "" {
 		c.Comm.SSHUsername = DefaultSSHUsername
+	}
+
+	if len(c.RawNetworking) == 0 {
+		c.Networking = DefaultNetworking
+	} else {
+		c.Networking = internal.ConvertNetworkTypes(c.RawNetworking)
 	}
 
 	// validate

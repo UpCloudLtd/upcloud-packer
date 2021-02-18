@@ -17,7 +17,7 @@ const (
 
 type (
 	Driver interface {
-		CreateServer(string, string, string, string, int) (*upcloud.ServerDetails, error)
+		CreateServer(string, string, string, string, int, []request.CreateServerInterface) (*upcloud.ServerDetails, error)
 		DeleteServer(string) error
 		StopServer(string) error
 		GetStorage(string, string) (*upcloud.Storage, error)
@@ -49,9 +49,9 @@ func NewDriver(c *DriverConfig) Driver {
 	}
 }
 
-func (d *driver) CreateServer(storageUuid, zone, prefix, sshKeyPublic string, storageSize int) (*upcloud.ServerDetails, error) {
+func (d *driver) CreateServer(storageUuid, zone, prefix, sshKeyPublic string, storageSize int, networking []request.CreateServerInterface) (*upcloud.ServerDetails, error) {
 	// Create server
-	request := d.prepareCreateRequest(storageUuid, zone, prefix, sshKeyPublic, storageSize)
+	request := d.prepareCreateRequest(storageUuid, zone, prefix, sshKeyPublic, storageSize, networking)
 	response, err := d.svc.CreateServer(request)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating server: %s", err)
@@ -259,7 +259,7 @@ func (d *driver) GetServerStorage(serverUuid string) (*upcloud.ServerStorageDevi
 	return &storage, nil
 }
 
-func (d *driver) prepareCreateRequest(storageUuid, zone, prefix, sshKeyPublic string, storageSize int) *request.CreateServerRequest {
+func (d *driver) prepareCreateRequest(storageUuid, zone, prefix, sshKeyPublic string, storageSize int, networking []request.CreateServerInterface) *request.CreateServerRequest {
 	title := fmt.Sprintf("packer-%s-%s", prefix, GetNowString())
 	hostname := prefix
 	titleDisk := fmt.Sprintf("%s-disk1", title)
@@ -280,16 +280,7 @@ func (d *driver) prepareCreateRequest(storageUuid, zone, prefix, sshKeyPublic st
 			},
 		},
 		Networking: &request.CreateServerNetworking{
-			Interfaces: []request.CreateServerInterface{
-				{
-					IPAddresses: []request.CreateServerIPAddress{
-						{
-							Family: upcloud.IPAddressFamilyIPv4,
-						},
-					},
-					Type: upcloud.IPAddressAccessPublic,
-				},
-			},
+			Interfaces: networking,
 		},
 		LoginUser: &request.LoginUser{
 			CreatePassword: "no",
