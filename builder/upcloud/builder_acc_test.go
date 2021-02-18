@@ -36,6 +36,14 @@ func TestBuilderAcc_storageName(t *testing.T) {
 	})
 }
 
+func TestBuilderAcc_networking(t *testing.T) {
+	builderT.Test(t, builderT.TestCase{
+		PreCheck: func() { testAccPreCheck(t) },
+		Builder:  &Builder{},
+		Template: testBuilderAccNetworking,
+	})
+}
+
 func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("UPCLOUD_API_USER"); v == "" {
 		t.Fatal("UPCLOUD_API_USER must be set for acceptance tests")
@@ -77,6 +85,37 @@ const testBuilderAccStorageName = `
             "ssh_username": "root",
             "template_prefix": "test-builder",
             "storage_size": "20"
+	}]
+}
+`
+
+const testBuilderAccNetworking = `
+{
+	"builders": [{
+            "type": "test",
+            "zone": "nl-ams1",
+            "storage_name": "ubuntu server 20.04",
+            "ssh_username": "root",
+            "template_prefix": "test-builder",
+            "storage_size": "20",
+            "network_interfaces": [
+                {
+                    "type": "public",
+                    "ip_addresses": [
+                        {
+                            "family": "IPv4"
+                        }
+                    ]
+                },
+                {
+                    "type": "utility",
+                    "ip_addresses": [
+                        {
+                            "family": "IPv4"
+                        }
+                    ]
+                }
+            ]
 	}]
 }
 `
