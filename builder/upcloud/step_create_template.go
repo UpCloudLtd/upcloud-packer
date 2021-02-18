@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
+	internal "github.com/UpCloudLtd/upcloud-packer/internal"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/packerbuilderdata"
@@ -21,12 +22,12 @@ func (s *StepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 	serverUuid := state.Get("server_uuid").(string)
 
 	ui := state.Get("ui").(packer.Ui)
-	driver := state.Get("driver").(Driver)
+	driver := state.Get("driver").(internal.Driver)
 
 	// get storage details
 	storage, err := driver.GetServerStorage(serverUuid)
 	if err != nil {
-		return StepHaltWithError(state, err)
+		return internal.StepHaltWithError(state, err)
 	}
 
 	// clonning to zones
@@ -36,10 +37,10 @@ func (s *StepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 
 	for _, zone := range s.Config.CloneZones {
 		ui.Say(fmt.Sprintf("Cloning storage %q to zone %q...", storage.UUID, zone))
-		title := fmt.Sprintf("packer-%s-%s-cloned-disk1", s.Config.TemplatePrefix, GetNowString())
+		title := fmt.Sprintf("packer-%s-%s-cloned-disk1", s.Config.TemplatePrefix, internal.GetNowString())
 		clonedStorage, err := driver.CloneStorage(storage.UUID, zone, title)
 		if err != nil {
-			return StepHaltWithError(state, err)
+			return internal.StepHaltWithError(state, err)
 		}
 		storageUuids = append(storageUuids, clonedStorage.UUID)
 		cleanupStorageUuid = append(cleanupStorageUuid, clonedStorage.UUID)
@@ -54,7 +55,7 @@ func (s *StepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 
 		t, err := driver.CreateTemplate(uuid, s.Config.TemplatePrefix)
 		if err != nil {
-			return StepHaltWithError(state, err)
+			return internal.StepHaltWithError(state, err)
 		}
 		templates = append(templates, t)
 		ui.Say(fmt.Sprintf("Template for storage %q created...", uuid))
@@ -77,7 +78,7 @@ func (s *StepCreateTemplate) Cleanup(state multistep.StateBag) {
 	storageUuids := rawStorageUuids.([]string)
 
 	ui := state.Get("ui").(packer.Ui)
-	driver := state.Get("driver").(Driver)
+	driver := state.Get("driver").(internal.Driver)
 
 	for _, uuid := range storageUuids {
 		ui.Say(fmt.Sprintf("Delete storage %q...", uuid))

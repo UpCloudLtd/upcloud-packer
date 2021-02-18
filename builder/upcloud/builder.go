@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
+	internal "github.com/UpCloudLtd/upcloud-packer/internal"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
@@ -18,7 +19,7 @@ const BuilderId = "upcloud.builder"
 type Builder struct {
 	config Config
 	runner multistep.Runner
-	driver Driver
+	driver internal.Driver
 }
 
 func (b *Builder) ConfigSpec() hcldec.ObjectSpec { return b.config.FlatMapstructure().HCL2Spec() }
@@ -42,7 +43,7 @@ func (b *Builder) Prepare(raws ...interface{}) (generatedVars []string, warnings
 
 func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook) (packersdk.Artifact, error) {
 	// Setup the state bag and initial state for the steps
-	b.driver = NewDriver(&DriverConfig{
+	b.driver = internal.NewDriver(&internal.DriverConfig{
 		Username:    b.config.Username,
 		Password:    b.config.Password,
 		Timeout:     b.config.Timeout,
@@ -69,7 +70,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		},
 		&communicator.StepConnect{
 			Config:    &b.config.Comm,
-			Host:      SshHostCallback,
+			Host:      internal.SshHostCallback,
 			SSHConfig: b.config.Comm.SSHConfigFunc(),
 		},
 		&commonsteps.StepProvision{},

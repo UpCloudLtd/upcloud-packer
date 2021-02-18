@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	internal "github.com/UpCloudLtd/upcloud-packer/internal"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/packerbuilderdata"
@@ -18,11 +19,11 @@ type StepCreateServer struct {
 // Run runs the actual step
 func (s *StepCreateServer) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	ui := state.Get("ui").(packer.Ui)
-	driver := state.Get("driver").(Driver)
+	driver := state.Get("driver").(internal.Driver)
 
 	rawSshKeyPublic, ok := state.GetOk("ssh_key_public")
 	if !ok {
-		return StepHaltWithError(state, fmt.Errorf("SSH public key is missing"))
+		return internal.StepHaltWithError(state, fmt.Errorf("SSH public key is missing"))
 	}
 	sshKeyPublic := rawSshKeyPublic.(string)
 
@@ -30,7 +31,7 @@ func (s *StepCreateServer) Run(ctx context.Context, state multistep.StateBag) mu
 
 	storage, err := driver.GetStorage(s.Config.StorageUUID, s.Config.StorageName)
 	if err != nil {
-		return StepHaltWithError(state, err)
+		return internal.StepHaltWithError(state, err)
 	}
 
 	ui.Say(fmt.Sprintf("Creating server based on storage %q...", storage.Title))
@@ -43,14 +44,14 @@ func (s *StepCreateServer) Run(ctx context.Context, state multistep.StateBag) mu
 		s.Config.StorageSize,
 	)
 	if err != nil {
-		return StepHaltWithError(state, err)
+		return internal.StepHaltWithError(state, err)
 	}
 
 	serverUuid := response.UUID
 	serverTitle := response.Title
-	serverIp, err := GetServerIp(response)
+	serverIp, err := internal.GetServerIp(response)
 	if err != nil {
-		return StepHaltWithError(state, err)
+		return internal.StepHaltWithError(state, err)
 	}
 
 	ui.Say(fmt.Sprintf("Server %q created and in 'started' state", serverTitle))
@@ -79,7 +80,7 @@ func (s *StepCreateServer) Cleanup(state multistep.StateBag) {
 	serverTitle := state.Get("server_title").(string)
 
 	ui := state.Get("ui").(packer.Ui)
-	driver := state.Get("driver").(Driver)
+	driver := state.Get("driver").(internal.Driver)
 
 	// stop server
 	ui.Say(fmt.Sprintf("Stopping server %q...", serverTitle))
