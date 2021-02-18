@@ -74,6 +74,8 @@ type FlatConfig struct {
 	StorageSize               *int              `mapstructure:"storage_size" cty:"storage_size"`
 	Timeout                   *string           `mapstructure:"state_timeout_duration" cty:"state_timeout_duration"`
 	CloneZones                []string          `mapstructure:"clone_zones" cty:"clone_zones"`
+	SSHPrivateKeyPath         *string           `mapstructure:"ssh_private_key_path" cty:"ssh_private_key_path"`
+	SSHPublicKeyPath          *string           `mapstructure:"ssh_public_key_path" cty:"ssh_public_key_path"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -154,6 +156,8 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"storage_size":                 &hcldec.AttrSpec{Name: "storage_size", Type: cty.Number, Required: false},
 		"state_timeout_duration":       &hcldec.AttrSpec{Name: "state_timeout_duration", Type: cty.String, Required: false},
 		"clone_zones":                  &hcldec.AttrSpec{Name: "clone_zones", Type: cty.List(cty.String), Required: false},
+		"ssh_private_key_path":         &hcldec.AttrSpec{Name: "ssh_private_key_path", Type: cty.String, Required: false},
+		"ssh_public_key_path":          &hcldec.AttrSpec{Name: "ssh_public_key_path", Type: cty.String, Required: false},
 	}
 	return s
 }
