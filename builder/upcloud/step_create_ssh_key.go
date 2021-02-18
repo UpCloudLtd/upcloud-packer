@@ -8,6 +8,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	internal "github.com/UpCloudLtd/upcloud-packer/internal"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
@@ -25,6 +26,16 @@ type StepCreateSSHKey struct {
 func (s *StepCreateSSHKey) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
 	ui := state.Get("ui").(packersdk.Ui)
 	config := state.Get("config").(*Config)
+
+	if len(config.SSHPrivateKey) != 0 && len(config.SSHPublicKey) != 0 {
+		ui.Say("Using provided SSH keys...")
+
+		config.Comm.SSHPrivateKey = config.SSHPrivateKey
+		config.Comm.SSHPublicKey = config.SSHPublicKey
+
+		state.Put("ssh_key_public", strings.Trim(string(config.SSHPublicKey), "\n"))
+		return multistep.ActionContinue
+	}
 
 	ui.Say("Creating temporary ssh key...")
 

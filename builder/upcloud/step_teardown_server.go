@@ -13,7 +13,7 @@ import (
 type StepTeardownServer struct{}
 
 // Run runs the actual step
-func (s *StepTeardownServer) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
+func (s *StepTeardownServer) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
 	// Extract server details
 	serverUuid := state.Get("server_uuid").(string)
 	serverTitle := state.Get("server_title").(string)

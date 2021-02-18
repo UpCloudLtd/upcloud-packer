@@ -17,7 +17,7 @@ type StepCreateServer struct {
 }
 
 // Run runs the actual step
-func (s *StepCreateServer) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
+func (s *StepCreateServer) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
 	ui := state.Get("ui").(packer.Ui)
 	driver := state.Get("driver").(internal.Driver)
 
@@ -36,14 +36,14 @@ func (s *StepCreateServer) Run(ctx context.Context, state multistep.StateBag) mu
 
 	ui.Say(fmt.Sprintf("Creating server based on storage %q...", storage.Title))
 
-	response, err := driver.CreateServer(
-		storage.UUID,
-		s.Config.Zone,
-		s.Config.TemplatePrefix,
-		sshKeyPublic,
-		s.Config.StorageSize,
-		s.Config.Networking,
-	)
+	response, err := driver.CreateServer(&internal.ServerOpts{
+		StorageUuid:    storage.UUID,
+		StorageSize:    s.Config.StorageSize,
+		Zone:           s.Config.Zone,
+		TemplatePrefix: s.Config.TemplatePrefix,
+		SshPublicKey:   sshKeyPublic,
+		Networking:     s.Config.Networking,
+	})
 	if err != nil {
 		return internal.StepHaltWithError(state, err)
 	}

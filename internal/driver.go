@@ -17,7 +17,7 @@ const (
 
 type (
 	Driver interface {
-		CreateServer(string, string, string, string, int, []request.CreateServerInterface) (*upcloud.ServerDetails, error)
+		CreateServer(*ServerOpts) (*upcloud.ServerDetails, error)
 		DeleteServer(string) error
 		StopServer(string) error
 		GetStorage(string, string) (*upcloud.Storage, error)
@@ -38,6 +38,15 @@ type (
 		Timeout     time.Duration
 		SSHUsername string
 	}
+
+	ServerOpts struct {
+		StorageUuid    string
+		StorageSize    int
+		Zone           string
+		TemplatePrefix string
+		SshPublicKey   string
+		Networking     []request.CreateServerInterface
+	}
 )
 
 func NewDriver(c *DriverConfig) Driver {
@@ -49,9 +58,9 @@ func NewDriver(c *DriverConfig) Driver {
 	}
 }
 
-func (d *driver) CreateServer(storageUuid, zone, prefix, sshKeyPublic string, storageSize int, networking []request.CreateServerInterface) (*upcloud.ServerDetails, error) {
+func (d *driver) CreateServer(opts *ServerOpts) (*upcloud.ServerDetails, error) {
 	// Create server
-	request := d.prepareCreateRequest(storageUuid, zone, prefix, sshKeyPublic, storageSize, networking)
+	request := d.prepareCreateRequest(opts)
 	response, err := d.svc.CreateServer(request)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating server: %s", err)
@@ -259,36 +268,34 @@ func (d *driver) GetServerStorage(serverUuid string) (*upcloud.ServerStorageDevi
 	return &storage, nil
 }
 
-func (d *driver) prepareCreateRequest(storageUuid, zone, prefix, sshKeyPublic string, storageSize int, networking []request.CreateServerInterface) *request.CreateServerRequest {
-	title := fmt.Sprintf("packer-%s-%s", prefix, GetNowString())
-	hostname := prefix
+func (d *driver) prepareCreateRequest(opts *ServerOpts) *request.CreateServerRequest {
+	title := fmt.Sprintf("packer-%s-%s", opts.TemplatePrefix, GetNowString())
+	hostname := opts.TemplatePrefix
 	titleDisk := fmt.Sprintf("%s-disk1", title)
 
 	request := request.CreateServerRequest{
 		Title:            title,
 		Hostname:         hostname,
-		Zone:             zone,
+		Zone:             opts.Zone,
 		PasswordDelivery: request.PasswordDeliveryNone,
 		Plan:             DefaultPlan,
 		StorageDevices: []request.CreateServerStorageDevice{
 			{
 				Action:  request.CreateServerStorageDeviceActionClone,
-				Storage: storageUuid,
+				Storage: opts.StorageUuid,
 				Title:   titleDisk,
-				Size:    storageSize,
+				Size:    opts.StorageSize,
 				Tier:    upcloud.StorageTierMaxIOPS,
 			},
 		},
 		Networking: &request.CreateServerNetworking{
-			Interfaces: networking,
+			Interfaces: opts.Networking,
 		},
 		LoginUser: &request.LoginUser{
 			CreatePassword: "no",
+			Username:       d.config.SSHUsername,
+			SSHKeys:        []string{opts.SshPublicKey},
 		},
-	}
-	if sshKeyPublic != "" {
-		request.LoginUser.Username = d.config.SSHUsername
-		request.LoginUser.SSHKeys = []string{sshKeyPublic}
 	}
 	return &request
 }

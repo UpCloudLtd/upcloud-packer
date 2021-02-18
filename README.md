@@ -119,6 +119,8 @@ This section describes the available configuration options for the builder. Plea
 * `state_timeout_duration` (string) The amount of time to wait for resource state changes. Defaults to `5m`.
 * `template_prefix` (string) The prefix to use for the generated template title. Defaults to an empty string, meaning the prefix will be the storage title. You can use this option to easily differentiate between different templates.
 * `clone_zones` ([]string) The array of extra zones (locations) where created templates should be cloned. Note that default `state_timeout_duration` is not enough for cloning, better to increase a value depending on storage size.
+* `ssh_private_key_path` (string) Path to SSH Private Key that will be used for provisioning and stored in the template.
+* `ssh_public_key_path` (string) Path to SSH Public Key that will be used for provisioning.
 * `network_interfaces` (array) The array of network interfaces to request during the creation of the server for building the packer image. Example:
 
 ```json

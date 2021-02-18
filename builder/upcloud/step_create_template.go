@@ -18,7 +18,7 @@ type StepCreateTemplate struct {
 }
 
 // Run runs the actual step
-func (s *StepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
+func (s *StepCreateTemplate) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
 	serverUuid := state.Get("server_uuid").(string)
 
 	ui := state.Get("ui").(packer.Ui)

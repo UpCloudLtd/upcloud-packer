@@ -2,6 +2,8 @@ package upcloud
 
 import (
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"os"
 	"time"
 
@@ -54,6 +56,11 @@ type Config struct {
 
 	RawNetworking []internal.NetworkInterface `mapstructure:"network_interfaces"`
 	Networking    []request.CreateServerInterface
+
+	SSHPrivateKeyPath string `mapstructure:"ssh_private_key_path"`
+	SSHPublicKeyPath  string `mapstructure:"ssh_public_key_path"`
+	SSHPrivateKey     []byte
+	SSHPublicKey      []byte
 
 	ctx interpolate.Context
 }
@@ -121,6 +128,22 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 		errs = packer.MultiErrorAppend(
 			errs, errors.New("'storage_uuid' or 'storage_name' must be specified"),
 		)
+	}
+
+	if c.SSHPrivateKeyPath != "" {
+		c.SSHPrivateKey, err = ioutil.ReadFile(c.SSHPrivateKeyPath)
+		if err != nil {
+			errs = packer.MultiErrorAppend(
+				errs, fmt.Errorf("Failed to read private key: %s", err))
+		}
+	}
+
+	if c.SSHPublicKeyPath != "" {
+		c.SSHPublicKey, err = ioutil.ReadFile(c.SSHPublicKeyPath)
+		if err != nil {
+			errs = packer.MultiErrorAppend(
+				errs, fmt.Errorf("Failed to read public key: %s", err))
+		}
 	}
 
 	if errs != nil && len(errs.Errors) > 0 {
