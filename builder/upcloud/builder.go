@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
+	internal "github.com/UpCloudLtd/upcloud-packer/internal"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
@@ -18,7 +19,7 @@ const BuilderId = "upcloud.builder"
 type Builder struct {
 	config Config
 	runner multistep.Runner
-	driver Driver
+	driver internal.Driver
 }
 
 func (b *Builder) ConfigSpec() hcldec.ObjectSpec { return b.config.FlatMapstructure().HCL2Spec() }
@@ -42,7 +43,12 @@ func (b *Builder) Prepare(raws ...interface{}) (generatedVars []string, warnings
 
 func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook) (packersdk.Artifact, error) {
 	// Setup the state bag and initial state for the steps
-	b.driver = NewDriver(&b.config)
+	b.driver = internal.NewDriver(&internal.DriverConfig{
+		Username:    b.config.Username,
+		Password:    b.config.Password,
+		Timeout:     b.config.Timeout,
+		SSHUsername: b.config.Comm.SSHUsername,
+	})
 
 	state := new(multistep.BasicStateBag)
 	state.Put("config", &b.config)
@@ -59,11 +65,12 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			DebugKeyPath: fmt.Sprintf("ssh_key-%s.pem", b.config.PackerBuildName),
 		},
 		&StepCreateServer{
+			Config:        &b.config,
 			GeneratedData: generatedData,
 		},
 		&communicator.StepConnect{
 			Config:    &b.config.Comm,
-			Host:      sshHostCallback,
+			Host:      internal.SshHostCallback,
 			SSHConfig: b.config.Comm.SSHConfigFunc(),
 		},
 		&commonsteps.StepProvision{},
@@ -72,6 +79,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		},
 		&StepTeardownServer{},
 		&StepCreateTemplate{
+			Config:        &b.config,
 			GeneratedData: generatedData,
 		},
 	}
@@ -85,16 +93,19 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		return nil, err.(error)
 	}
 
-	template, ok := state.GetOk("template")
+	templates, ok := state.GetOk("templates")
 	if !ok {
 		return nil, fmt.Errorf("No template found in state, the build was probably cancelled")
 	}
 
 	artifact := &Artifact{
-		Template:  template.(*upcloud.Storage),
+		Templates: templates.([]*upcloud.Storage),
 		config:    &b.config,
 		driver:    b.driver,
-		StateData: map[string]interface{}{"generated_data": state.Get("generated_data")},
+		StateData: map[string]interface{}{
+			"generated_data":  state.Get("generated_data"),
+			"template_prefix": b.config.TemplatePrefix,
+		},
 	}
 	return artifact, nil
 }

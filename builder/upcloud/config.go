@@ -34,6 +34,7 @@ type Config struct {
 	TemplatePrefix string        `mapstructure:"template_prefix"`
 	StorageSize    int           `mapstructure:"storage_size"`
 	Timeout        time.Duration `mapstructure:"state_timeout_duration"`
+	CloneZones     []string      `mapstructure:"clone_zones"`
 
 	ctx interpolate.Context
 }

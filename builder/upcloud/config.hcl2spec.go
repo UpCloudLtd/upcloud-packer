@@ -73,6 +73,7 @@ type FlatConfig struct {
 	TemplatePrefix            *string           `mapstructure:"template_prefix" cty:"template_prefix"`
 	StorageSize               *int              `mapstructure:"storage_size" cty:"storage_size"`
 	Timeout                   *string           `mapstructure:"state_timeout_duration" cty:"state_timeout_duration"`
+	CloneZones                []string          `mapstructure:"clone_zones" cty:"clone_zones"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -152,6 +153,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"template_prefix":              &hcldec.AttrSpec{Name: "template_prefix", Type: cty.String, Required: false},
 		"storage_size":                 &hcldec.AttrSpec{Name: "storage_size", Type: cty.Number, Required: false},
 		"state_timeout_duration":       &hcldec.AttrSpec{Name: "state_timeout_duration", Type: cty.String, Required: false},
+		"clone_zones":                  &hcldec.AttrSpec{Name: "clone_zones", Type: cty.List(cty.String), Required: false},
 	}
 	return s
 }

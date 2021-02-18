@@ -96,12 +96,12 @@ func checkTemplateDefaultSettings() builderT.TestCheckFunc {
 		expectedSize := 25
 		expectedTitle := "custom-image"
 
-		if artifact.Template.Size != expectedSize {
-			return fmt.Errorf("Wrong size. Expected %d, got %d", expectedSize, artifact.Template.Size)
+		if artifact.Templates[0].Size != expectedSize {
+			return fmt.Errorf("Wrong size. Expected %d, got %d", expectedSize, artifact.Templates[0].Size)
 		}
 
-		if !strings.HasPrefix(artifact.Template.Title, expectedTitle) {
-			return fmt.Errorf("Wrong title prefix. Expected %q, got %q", expectedTitle, artifact.Template.Title)
+		if !strings.HasPrefix(artifact.Templates[0].Title, expectedTitle) {
+			return fmt.Errorf("Wrong title prefix. Expected %q, got %q", expectedTitle, artifact.Templates[0].Title)
 		}
 		return nil
 	}

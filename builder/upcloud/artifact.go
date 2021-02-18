@@ -2,15 +2,17 @@ package upcloud
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
+	internal "github.com/UpCloudLtd/upcloud-packer/internal"
 )
 
 // packersdk.Artifact implementation
 type Artifact struct {
-	config   *Config
-	driver   Driver
-	Template *upcloud.Storage
+	config    *Config
+	driver    internal.Driver
+	Templates []*upcloud.Storage
 
 	// StateData should store data such as GeneratedData
 	// to be shared with post-processors
@@ -26,11 +28,15 @@ func (a *Artifact) Files() []string {
 }
 
 func (a *Artifact) Id() string {
-	return a.Template.UUID
+	result := []string{}
+	for _, t := range a.Templates {
+		result = append(result, t.UUID)
+	}
+	return strings.Join(result, ",")
 }
 
 func (a *Artifact) String() string {
-	return fmt.Sprintf("Storage template created, UUID: %q, Title: %q", a.Template.UUID, a.Template.Title)
+	return fmt.Sprintf("Storage template created, UUID: %s", a.Id())
 }
 
 func (a *Artifact) State(name string) interface{} {
@@ -38,5 +44,11 @@ func (a *Artifact) State(name string) interface{} {
 }
 
 func (a *Artifact) Destroy() error {
-	return a.driver.DeleteTemplate(a.Template.UUID)
+	for _, t := range a.Templates {
+		err := a.driver.DeleteTemplate(t.UUID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

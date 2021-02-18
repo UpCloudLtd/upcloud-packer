@@ -15,5 +15,6 @@ func main() {
 	if err := server.RegisterBuilder(new(upcloud.Builder)); err != nil {
 		panic(err)
 	}
+
 	server.Serve()
 }

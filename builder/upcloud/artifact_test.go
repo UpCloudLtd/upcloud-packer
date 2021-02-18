@@ -1,6 +1,7 @@
 package upcloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/UpCloudLtd/upcloud-go-api/upcloud"
@@ -12,11 +13,15 @@ func TestArtifact_impl(t *testing.T) {
 }
 
 func TestArtifact_Id(t *testing.T) {
-	expected := "some-uuid"
-	template := &upcloud.Storage{
-		UUID: expected,
-	}
-	a := &Artifact{Template: template}
+	uuid1 := "some-uuid-1"
+	uuid2 := "some-uuid-2"
+	expected := fmt.Sprintf("%s,%s", uuid1, uuid2)
+
+	templates := []*upcloud.Storage{}
+	templates = append(templates, &upcloud.Storage{UUID: uuid1})
+	templates = append(templates, &upcloud.Storage{UUID: uuid2})
+
+	a := &Artifact{Templates: templates}
 	result := a.Id()
 
 	if result != expected {
@@ -25,12 +30,12 @@ func TestArtifact_Id(t *testing.T) {
 }
 
 func TestArtifact_String(t *testing.T) {
-	expected := `Storage template created, UUID: "some-uuid", Title: "some-title"`
-	template := &upcloud.Storage{
-		UUID:  "some-uuid",
-		Title: "some-title",
-	}
-	a := &Artifact{Template: template}
+	expected := `Storage template created, UUID: some-uuid`
+
+	templates := []*upcloud.Storage{}
+	templates = append(templates, &upcloud.Storage{UUID: "some-uuid"})
+
+	a := &Artifact{Templates: templates}
 	result := a.String()
 
 	if result != expected {
