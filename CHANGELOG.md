@@ -1,5 +1,12 @@
 # Change log
 
+## 4.1.0
+
+* Added ability to provide ssh keys
+* Added ability to setup network interfaces
+* Added ability to create templates into multiple zones
+* Changed default template size to 25Gb
+
 ## 4.0.0
 
 * Switched to use `packer-plugin-sdk`
