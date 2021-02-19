@@ -1,5 +1,7 @@
 # UpCloud Packer builder
 
+### This repository no longer supported, please consider using [Packer Upcloud Plugin](https://github.com/UpCloudLtd/packer-plugin-upcloud) instead.
+
 [![Build Status](https://travis-ci.org/UpCloudLtd/upcloud-packer.svg?branch=master)](https://travis-ci.org/UpCloudLtd/upcloud-packer)
 
 This is a builder plugin for Packer which can be used to generate storage templates on UpCloud. It utilises the [UpCloud Go API](https://github.com/UpCloudLtd/upcloud-go-api) to interface with the UpCloud API.
